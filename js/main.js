@@ -4,10 +4,60 @@
     var ctx = null;
     var img_snow = null;
     var img_snow_man = null;
+    //矢印キーのコード
+    var LEFT_KEY_CODE = 37;
+    var RIGHT_KEY_CODE = 39;
+    //雪だるまの横位置に加算する変数
+    var key_value = 0;
+
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
-        loadAssets();
+          loadAssets();
+          setHandlers();
     });
+    //雪だるまを動かすためのイベントハンドラーをまとめた関数
+    function setHandlers() {
+        //キーイベントの取得 (キーダウン)
+        document.addEventListener("keydown", function (evnt) {
+            ctx.font = "bold 20px ‘ＭＳ ゴシック’";
+            ctx.fillStyle = "red";
+            ctx.fillText("key押されました", getCenterPostion(canvas.clientWidth, 140), 160);
+
+            if (evnt.which == LEFT_KEY_CODE) {
+                key_value = -3;
+            } else if (evnt.which == RIGHT_KEY_CODE) {
+                key_value = 3;
+            }
+        });
+
+        //雪だるまが進みっぱなしにならないように、 キーが上がったら 0 に
+        document.addEventListener("keyup", function () {
+           key_value = 0;
+        });
+
+        //Canvas へのタッチイベント設定
+        canvas.addEventListener("touchstart", function (evnt) {
+           if ((canvas.clientWidth / 2) > evnt.touches[0].clientX) {
+                key_value = -3;
+           } else {
+                key_value = 3;
+           }
+        });
+
+        //雪だるまが進みっぱなしにならないように、 タッチが完了したら 0 に
+        canvas.addEventListener("touchend", function (evnt) {
+           key_value = 0;
+        });
+
+        //Canvas へのマウスダウンイベント設定
+        canvas.addEventListener("mousedown", function (evnt) {
+           if ((canvas.clientWidth / 2) > evnt.clientX) {
+                key_value = -3;
+           } else {
+                key_value = 3;
+           }
+        });
+    }
 
     function loadAssets() {
         //HTML ファイル上の canvas エレメントのインスタンスを取得
@@ -35,6 +85,8 @@
         img_snow_man.onload = function () {
             img_snow_man._x = getCenterPostion(canvas.clientWidth, img_snow_man.width);
             img_snow_man._y = canvas.clientHeight - img_snow_man.height;
+            //右側に動かせる最大値を設定
+            img_snow_man.limit_rightPosition =  getRightLimitPosition(canvas.clientWidth, img_snow_man.width);
             ctx.drawImage(img_snow_man, img_snow_man._x, img_snow_man._y);
         };
     };
@@ -46,6 +98,13 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         //img_snow の y 値を増分
         img_snow._y += 2;
+
+         //img_snow_man の x 値が動作範囲内かどうか
+        if ((img_snow_man._x < img_snow_man.limit_rightPosition && key_value > 0)
+          || (img_snow_man._x >= 3 && key_value < 0)) {
+               //img_snow_man の x 値を増分
+               img_snow_man._x += key_value;
+        }
         //画像を描画
         ctx.drawImage(img_snow, img_snow._x, img_snow._y);
         ctx.drawImage(img_snow_man, img_snow_man._x, img_snow_man._y);
@@ -60,6 +119,11 @@
         return (containerWidth / 2) - (itemWidth / 2);
     };
 
+    //Player (雪だるまを動かせる右の限界位置)
+    function getRightLimitPosition(containerWidth, itemWidth) {
+            return containerWidth - itemWidth;
+    }
+
     //当たり判定
     function isHit(targetA, targetB) {
         if ((targetA._x <= targetB._x && targetA.width + targetA._x >= targetB._x)
@@ -72,4 +136,5 @@
             }
         }
     }
+
 })();
