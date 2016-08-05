@@ -6,8 +6,6 @@ class GameScene{
 
     setGoBackTitleCallback(callback) {
         this.goBackTitleCallback = callback;
-        this.score = 0;
-        this.text = "ゲームスタート"
     }
 
     init(canvas, ctx, args){
@@ -18,6 +16,11 @@ class GameScene{
         this.player1 = args["player1"];
         this.correctWord = args["correctWord"];
         this.wrongWord = args["wrongWord"];
+
+        this.score = 0;
+        this.text = "ゲームスタート"
+        this.isPlaying = true;
+        MAX_SPEED = INITIAL_MAX_SPEED;
     }
 
     show(playerIndex) {
@@ -31,59 +34,52 @@ class GameScene{
 
         // ゲームスタート
         this.renderFrame();
-
-        this.ctx.font = "bold 20px ‘ＭＳ ゴシック’";
-        this.ctx.fillStyle = "red";
-        this.ctx.fillText("スタート", getCenterPostion(this.canvas.clientWidth, 140), 160);
-
     }
 
     setUpLayout () {
         this.player.setFirstPosition(100, 90);
-        this.correctWord.x = 640;
-        this.correctWord.y = 300;
-        this.wrongWord.x = 700;
-        this.wrongWord.y = 100;
+        this.correctWord.reset();
+        this.wrongWord.reset();
     }
 
     setHandlers() {
-        var self = this;
-
         //Canvas へのタッチイベント設定
-        this.canvas.addEventListener("click", function (evnt) {
-            // TODO: ポース画面
-            console.log("click");
-            // タッチしたらPlayerを動かす
-            self.player.move();
-        });
+        this.canvas.addEventListener("click", this.clickEvent.bind(this), false);
+    }
+
+    clickEvent(event) {
+        // TODO: ポース画面
+        console.log("GameScene click");
+        // タッチしたらPlayerを動かす
+        if (this.isPlaying) {
+            console.log("move");
+            this.player.move();
+        }
     }
 
     renderFrame() {
         //ループを開始
-        window.requestAnimationFrame(this.renderFrame.bind(this));
+        this.requestId = window.requestAnimationFrame(this.renderFrame.bind(this));
 
         //canvas をクリア
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        //img_snow の y 値(縦位置) が canvas からはみ出たら先頭に戻す
-        if (this.correctWord.x < -200) {
-            this.correctWord.x = 640
-            SPEED+=1;
-        };
-        if (this.wrongWord.x < -200) { this.wrongWord.x = 640 };
-
         // 時間移動
-        this.wrongWord.x -= SPEED;
-        this.correctWord.x -= SPEED;
+        this.wrongWord.move(1);
+        this.correctWord.move(1);
 
         //画像を描画
         this.draw();
 
         // 当たり判定チェック
-        this.checkHit();
+        if (this.isPlaying) {
+            this.checkHit();
+            this.text = this.score;
+        } else {
+            this.text = "Game Over : Score " + this.score;
+        }
 
         // 文字描画
-        this.text = this.score;
         this.drawText();
     }
 
@@ -97,12 +93,12 @@ class GameScene{
 
     checkHit() {
         if (isHit(this.player, this.correctWord)) {
-            // this.correctWord.reset();
+            this.correctWord.reset();
             this.score++;
         }
         if (this.isHitWrongWord(this.player, this.wrongWord)) {
-            // this.wrongWord.reset();
-            this.score--;
+            this.wrongWord.reset();
+            this.showGameOver();
         }
     }
 
@@ -118,9 +114,21 @@ class GameScene{
     }
 
     drawText() {
-        this.ctx.font = "bold 48px ‘ＭＳ ゴシック’";
+        this.ctx.font = "bold 32px ‘ＭＳ ゴシック’";
         this.ctx.fillStyle = "red";
-        this.ctx.fillText(this.text, getCenterPostion(this.canvas.clientWidth, 50), 50);
+        this.ctx.fillText(this.text, 50, 50);
     }
 
+    showGameOver() {
+        this.isPlaying = false;
+        this.canvas.removeEventListener("click", this.clickEvent, false);
+        this.canvas.addEventListener("click", this.goBackToTitle.bind(this), false);
+    }
+
+    goBackToTitle() {
+        console.log(this.requestId);
+        window.cancelAnimationFrame(this.requestId);  // ループ停止
+        this.canvas.removeEventListener("click", this.goBackToTitle, false);
+        this.goBackTitleCallback();
+    }
 }

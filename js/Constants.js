@@ -9,7 +9,10 @@ var PLAYER_MOVE_VALUE = 110;
 
 var LINE_NUM = 3;
 
-var SPEED = 3;
+var MIN_SPEED = 5;
+var MAX_SPEED = 10;
+var INITIAL_MAX_SPEED = 10;
+var SPEED_UP_DELTA = 1;
 
 var WINDOW_WIDTH = 640;
 var WINDOW_HEIGHT = 480;

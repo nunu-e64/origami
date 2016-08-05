@@ -1,6 +1,7 @@
 importScript('js/Constants.js');
 importScript('js/MyImage.js');
 importScript('js/Player.js');
+importScript('js/Word.js');
 importScript('js/TitleScene.js');
 importScript('js/GameScene.js');
 
@@ -8,6 +9,22 @@ importScript('js/GameScene.js');
 function importScript(src) {
   document.write("<script type='text/javascript' src='" + src + "'><\/script>");
 }
+
+(function() {
+    var requestAnimationFrame = window.requestAnimationFrame ||
+　　　　　　　　　　　　　　　　　　　window.mozRequestAnimationFrame ||
+                              　window.webkitRequestAnimationFrame ||
+　　　　　　　　　　　　　　　　　　　window.msRequestAnimationFrame;
+    window.requestAnimationFrame = requestAnimationFrame;
+})();
+
+(function() {
+    var cancelAnimationFrame = window.cancelAnimationFrame ||
+　　　　　　　　　　　　　　　　　　　window.mozcancelAnimationFrame ||
+                              　window.webkitcancelAnimationFrame ||
+　　　　　　　　　　　　　　　　　　　window.mscancelAnimationFrame;
+    window.cancelAnimationFrame = cancelAnimationFrame;
+})();
 
 (function () {
     //全体で使用する変数
@@ -36,36 +53,42 @@ function importScript(src) {
     // すべてのアセットの読み込みが終了していたらタイトル表示
     function finishLoadAsset() {
         loadedAssetsCount++;
-        console.log(loadedAssetsCount);
         if (loadedAssetsCount == loadingAssetsCount && hasStartedAllLoading) {
             console.log("finishLoadAsset");
-
-            titleScene = new TitleScene();
-            args = {
-                "back" : back,
-                "titleLogo" : titleLogo,
-                "titlePlayer0" : titlePlayer0,
-                "titlePlayer1" : titlePlayer1,
-            }
-            titleScene.init(canvas, ctx, args);
-
-            gameScene = new GameScene();
-            args = {
-                "back" : back,
-                "player0" : player0,
-                "player1" : player1,
-                "correctWord" : correctWord,
-                "wrongWord" : wrongWord
-            }
-            gameScene.init(canvas, ctx, args);
-
-            // シーン遷移用こ＝るバックを設定
-            gameScene.setGoBackTitleCallback(function(){titleScene.show();});
-            titleScene.setGameStartCallback(function(index){gameScene.show(index);});
-
-            // タイトル表示
-            titleScene.show();
+            showTitle();
         }
+    }
+
+    function showTitle() {
+        titleScene = null;
+        titleScene = new TitleScene();
+        args = {
+            "back" : back,
+            "titleLogo" : titleLogo,
+            "titlePlayer0" : titlePlayer0,
+            "titlePlayer1" : titlePlayer1,
+        }
+        titleScene.init(canvas, ctx, args);
+        titleScene.setGameStartCallback(function(index){showGameScene(index);});
+        titleScene.show();
+    }
+
+    function showGameScene(playerIndex) {
+        gameScene = null;
+        gameScene = new GameScene();
+        args = {
+            "back" : back,
+            "player0" : player0,
+            "player1" : player1,
+            "correctWord" : correctWord,
+            "wrongWord" : wrongWord
+        }
+        gameScene.init(canvas, ctx, args);
+
+        // シーン遷移用コールバックを設定
+        gameScene.setGoBackTitleCallback(function(){showTitle();});
+
+        gameScene.show(playerIndex);
     }
 
     function loadAssets() {
@@ -116,13 +139,13 @@ function importScript(src) {
             function () { finishLoadAsset();}
         );
 
-        correctWord = new MyImage('images/correct_word.png');
+        correctWord = new Word('images/correct_word.png');
         beginLoadAsset();
         correctWord.onload (
             function () { finishLoadAsset();}
         );
 
-        wrongWord = new MyImage('images/wrong_word.png');
+        wrongWord = new Word('images/wrong_word.png');
         beginLoadAsset();
         wrongWord.onload (
             function () { finishLoadAsset();}

@@ -46,23 +46,27 @@ class TitleScene {
     }
 
     setHandlers(){
+        this.canvas.addEventListener("click", this.clickEvent.bind(this), false);
+    }
+
+    clickEvent(event) {
+        //キャラを選択した時に
         var self = this;
-        this.canvas.addEventListener("click", function (event) {
-            //キャラを選択した時に
-            if (self.hasStarted) {
-                return ;
-            }
-            if (self.titlePlayer0.isContainedArea(event.clientX, event.clientY)) {
-                console.log("hit0");
-                self.gameStartCallback(0);
-                self.hasStarted = true;
-            }
-            if (self.titlePlayer1.isContainedArea(event.clientX, event.clientY)) {
-                console.log("hit1");
-                self.gameStartCallback(1);
-                self.hasStarted = true;
-            }
-        });
+        if (self.hasStarted) {
+            return ;
+        }
+        if (self.titlePlayer0.isContainedArea(event.clientX, event.clientY)) {
+            console.log(self);
+            self.canvas.removeEventListener("click", self.clickEvent, false);
+            self.hasStarted = true;
+            self.gameStartCallback(0);
+        }
+        if (self.titlePlayer1.isContainedArea(event.clientX, event.clientY)) {
+            console.log("hit1");
+            self.canvas.removeEventListener("click", self.clickEvent, false);
+            self.hasStarted = true;
+            self.gameStartCallback(1);
+        }
     }
 
 }
