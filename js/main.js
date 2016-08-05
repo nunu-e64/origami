@@ -1,8 +1,8 @@
-
-
 importScript('js/Constants.js');
 importScript('js/MyImage.js');
 importScript('js/Player.js');
+importScript('js/TitleScene.js');
+importScript('js/GameScene.js');
 
 // 外部スクリプトの読み込み
 function importScript(src) {
@@ -14,123 +14,119 @@ function importScript(src) {
     var canvas = null;
     var ctx = null;
     var requestId = null;
-    var player = null;
-    var wrongWord = null;
-    var correctWord = null;
 
     var hasStarted = false;
 
+    var loadingAssetsCount = 0;
+    var loadedAssetsCount = 0;
+    var hasStartedAllLoading = false;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
           loadAssets();
-          setHandlers();
-    });
+          hasStartedAllLoading = true;
+          console.log("loadAssets");
+     });
+
+    // アセット読み込みカウンター
+    function beginLoadAsset() {
+        loadingAssetsCount++;
+    }
+
+    // すべてのアセットの読み込みが終了していたらタイトル表示
+    function finishLoadAsset() {
+        loadedAssetsCount++;
+        console.log(loadedAssetsCount);
+        if (loadedAssetsCount == loadingAssetsCount && hasStartedAllLoading) {
+            console.log("finishLoadAsset");
+
+            titleScene = new TitleScene();
+            args = {
+                "back" : back,
+                "titleLogo" : titleLogo,
+                "titlePlayer0" : titlePlayer0,
+                "titlePlayer1" : titlePlayer1,
+            }
+            titleScene.init(canvas, ctx, args);
+
+            gameScene = new GameScene();
+            args = {
+                "back" : back,
+                "player0" : player0,
+                "player1" : player1,
+                "correctWord" : correctWord,
+                "wrongWord" : wrongWord
+            }
+            gameScene.init(canvas, ctx, args);
+
+            // シーン遷移用こ＝るバックを設定
+            gameScene.setGoBackTitleCallback(function(){titleScene.show();});
+            titleScene.setGameStartCallback(function(index){gameScene.show(index);});
+
+            // タイトル表示
+            titleScene.show();
+        }
+    }
 
     function loadAssets() {
         //HTML ファイル上の canvas エレメントのインスタンスを取得
         canvas = document.getElementById('bg');
-        //アニメーションの開始
-        canvas.addEventListener("click", function () {
-            if (hasStarted == false) {
-                renderFrame();
-            }
-            hasStarted = true;
-        });
+
         //2D コンテキストを取得
         ctx = canvas.getContext('2d');
 
-        player = new Player('images/player.png', 10, 90);
-        player.onload (
-          function () {
-            player.draw(ctx);
-          }
+
+        // 背景
+        back = new MyImage("images/dot.jpg");
+        beginLoadAsset();
+        back.onload (
+            function () { finishLoadAsset();}
         );
 
-        correctWord = new MyImage('images/correct_word.png', 640, 140);
+        // タイトルシーン
+        titleLogo = new MyImage("images/title.png");
+        beginLoadAsset();
+        titleLogo.onload (
+            function () { finishLoadAsset();}
+        );
+
+        titlePlayer0 = new MyImage("images/title_player0.png");
+        beginLoadAsset();
+        titlePlayer0.onload (
+            function () { finishLoadAsset();}
+        );
+
+        titlePlayer1 = new MyImage("images/title_player1.png");
+        beginLoadAsset();
+        titlePlayer1.onload (
+            function () { finishLoadAsset();}
+        );
+
+
+        //ゲームシーン
+        player0 = new Player('images/player0.png');
+        beginLoadAsset();
+        player0.onload (
+            function () { finishLoadAsset();}
+        );
+
+        player1 = new Player('images/player1.png');
+        beginLoadAsset();
+        player1.onload (
+            function () { finishLoadAsset();}
+        );
+
+        correctWord = new MyImage('images/correct_word.png');
+        beginLoadAsset();
         correctWord.onload (
-          function () {
-            correctWord.draw(ctx);
-          }
+            function () { finishLoadAsset();}
         );
 
-        wrongWord = new MyImage('images/wrong_word.png', 800, 330);
+        wrongWord = new MyImage('images/wrong_word.png');
+        beginLoadAsset();
         wrongWord.onload (
-          function () {
-            wrongWord.draw(ctx);
-          }
+            function () { finishLoadAsset();}
         );
-    };
-
-    function setHandlers() {
-        //キーイベントの取得 (キーダウン)
-        document.addEventListener("keydown", function (evnt) {
-            ctx.font = "bold 20px ‘ＭＳ ゴシック’";
-            ctx.fillStyle = "red";
-            ctx.fillText("key押されました", getCenterPostion(canvas.clientWidth, 140), 160);
-
-            if (evnt.which == LEFT_KEY_CODE) {
-                key_value = -3;
-            } else if (evnt.which == RIGHT_KEY_CODE) {
-                key_value = 3;
-            }
-        });
-
-        //雪だるまが進みっぱなしにならないように、 キーが上がったら 0 に
-        document.addEventListener("keyup", function () {
-           key_value = 0;
-        });
-
-        //Canvas へのタッチイベント設定
-        canvas.addEventListener("touchstart", function (evnt) {
-          // TODO: ポース画面
-
-          // タッチしたらPlayerを動かす
-          player.move();
-
-        });
-
-        canvas.addEventListener("touchend", function (evnt) {
-        });
-
-        //Canvas へのマウスダウンイベント設定
-        canvas.addEventListener("mousedown", function (evnt) {
-          // TODO: ポース画面
-
-          // タッチしたらPlayerを動かす
-          player.move();
-        });
-    }
-
-    function renderFrame() {
-        //img_snow の y 値(縦位置) が canvas からはみ出たら先頭に戻す
-        if (correctWord._x < -200) {
-            correctWord._x = 640
-            SPEED+=1;
-        };
-        if (wrongWord._x < -200) { wrongWord._x = 640 };
-
-        //canvas をクリア
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // //img_snow の y 値を増分
-        // img_snow._y += 2;
-
-        wrongWord._x -= SPEED;
-        correctWord._x -= SPEED;
-
-        //画像を描画
-        player.draw(ctx);
-        wrongWord.draw(ctx);
-        correctWord.draw(ctx);
-
-        //ループを開始
-        requestId = window.requestAnimationFrame(renderFrame);
-    }
-
-    //中央に配置する画像の X 座標を求める関数
-    function getCenterPostion(containerWidth, itemWidth) {
-        return (containerWidth / 2) - (itemWidth / 2);
     };
 
     //Player (雪だるまを動かせる右の限界位置)
@@ -140,8 +136,8 @@ function importScript(src) {
 
     //当たり判定
     function isHit(targetA, targetB) {
-        if ((targetA._x <= targetB._x && targetA.width + targetA._x >= targetB._x)
-                || (targetA._x >= targetB._x && targetB._x + targetB.width >= targetA._x)) {
+        if ((targetA.x <= targetB.x && targetA.width + targetA.x >= targetB.x)
+                || (targetA.x >= targetB.x && targetB.x + targetB.width >= targetA.x)) {
                    if ((targetA._y <= targetB._y && targetA.height + targetA._y >= targetB._y)
                        || (targetA._y >= targetB._y && targetB._y + targetB.height >= targetA._y)) {
                           ctx.font = "bold 20px ‘ＭＳ ゴシック’";
