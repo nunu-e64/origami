@@ -81,7 +81,8 @@ function importScript(src) {
             "player0" : player0,
             "player1" : player1,
             "correctWord" : correctWord,
-            "wrongWord" : wrongWord
+            "wrongWord" : wrongWord,
+            "backTitle" : backTitle
         }
         gameScene.init(canvas, ctx, args);
 
@@ -139,15 +140,21 @@ function importScript(src) {
             function () { finishLoadAsset();}
         );
 
-        correctWord = new Word('images/correct_word.png');
+        correctWord = new MyImage('images/correct_word.png');
         beginLoadAsset();
         correctWord.onload (
             function () { finishLoadAsset();}
         );
 
-        wrongWord = new Word('images/wrong_word.png');
+        wrongWord = new MyImage('images/wrong_word.png');
         beginLoadAsset();
         wrongWord.onload (
+            function () { finishLoadAsset();}
+        );
+
+        backTitle = new MyImage('images/back_title.png');
+        beginLoadAsset();
+        backTitle.onload (
             function () { finishLoadAsset();}
         );
     };

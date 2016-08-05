@@ -1,22 +1,32 @@
-class Word extends MyImage {
-    constructor(src) {
-        super(src);
+class Word {
+    constructor() {
         this.reset();
+    }
+
+    setImage(img) {
+        this.image = img;
+        this.width = this.image.width;
+        this.height = this.image.height;
     }
 
     reset() {
         this.x = WINDOW_WIDTH;
         this.y = Math.floor(Math.random() * WINDOW_HEIGHT);
-        this.speed = Math.floor(Math.random() * (MAX_SPEED - MIN_SPEED)) + MIN_SPEED;
+        this.speed = Math.random() * (MAX_SPEED - MIN_SPEED) + MIN_SPEED;
     }
 
     move (dt) {
         this.x-=this.speed * dt;
+    }
 
-        //img_snow の y 値(縦位置) が canvas からはみ出たら先頭に戻す
+    isActive () {
         if (this.x < -this.width) {
-            MAX_SPEED += SPEED_UP_DELTA;
-            this.reset();
-        };
+            return false;
+        }
+        return true;
+    }
+
+    draw(ctx) {
+        ctx.drawImage(this.image, this.x, this.y);
     }
 }

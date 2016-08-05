@@ -14,13 +14,17 @@ class GameScene{
         this.back = args["back"];
         this.player0 = args["player0"];
         this.player1 = args["player1"];
-        this.correctWord = args["correctWord"];
-        this.wrongWord = args["wrongWord"];
+        this.correctWordImage = args["correctWord"].image;
+        this.wrongWordImage = args["wrongWord"].image;
+        this.backTitleButton = args["backTitle"];
 
         this.score = 0;
         this.text = "ゲームスタート"
         this.isPlaying = true;
         MAX_SPEED = INITIAL_MAX_SPEED;
+        this.spawnRate = INITIAL_SPAWN_RATE;
+        this.correctWords = [];
+        this.wrongWords = [];
     }
 
     show(playerIndex) {
@@ -38,8 +42,8 @@ class GameScene{
 
     setUpLayout () {
         this.player.setFirstPosition(100, 90);
-        this.correctWord.reset();
-        this.wrongWord.reset();
+        this.backTitleButton.x = getCenterPostion(WINDOW_WIDTH, this.backTitleButton.width);
+        this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 50;
     }
 
     setHandlers() {
@@ -57,6 +61,22 @@ class GameScene{
         }
     }
 
+    spawn() {
+        var rand = Math.random();
+        if (rand < this.spawnRate) {
+            var word = new Word();
+            if (Math.random() < 0.5) {
+                word.setImage(this.correctWordImage);
+                this.correctWords.push(word);
+                console.log("Spawn: correct " + this.correctWords.length);
+            } else {
+                word.setImage(this.wrongWordImage);
+                this.wrongWords.push(word);
+                console.log("Spawn: wrong " + this.wrongWords.length);
+            }
+        }
+    }
+
     renderFrame() {
         //ループを開始
         this.requestId = window.requestAnimationFrame(this.renderFrame.bind(this));
@@ -65,8 +85,18 @@ class GameScene{
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // 時間移動
-        this.wrongWord.move(1);
-        this.correctWord.move(1);
+        for (var i = this.correctWords.length - 1; i >= 0; i--) {
+            this.correctWords[i].move(1);
+            if (! this.correctWords[i].isActive()) {
+                this.correctWords.splice(i, 1)
+            }
+        }
+        for (var i = this.wrongWords.length - 1; i >= 0; i--) {
+            this.wrongWords[i].move(1);
+            if (! this.wrongWords[i].isActive()) {
+                this.wrongWords.splice(i, 1)
+            }
+        }
 
         //画像を描画
         this.draw();
@@ -79,6 +109,23 @@ class GameScene{
             this.text = "Game Over : Score " + this.score;
         }
 
+        // スポーン
+        this.spawn();
+
+        // レベルアップ
+        if (MAX_SPEED < MAX_MAX_SPEED) {
+            MAX_SPEED += SPEED_UP_DELTA;
+        } else {
+            MAX_SPEED = MAX_MAX_SPEED;
+        }
+
+        if (this.spawnRate < MAX_SPAWN_RATE) {
+            this.spawnRate += RATE_UP_DELTA;
+        } else {
+            this.spawnRate = MAX_SPAWN_RATE;
+        }
+        console.log("MaxSpeed:" + MAX_SPEED + ", Rate: " + this.spawnRate);
+
         // 文字描画
         this.drawText();
     }
@@ -87,18 +134,31 @@ class GameScene{
         var ctx = this.ctx;
         this.back.draw(ctx);
         this.player.draw(ctx);
-        this.wrongWord.draw(ctx);
-        this.correctWord.draw(ctx);
+        for (var i = this.correctWords.length - 1; i >= 0; i--) {
+            this.correctWords[i].draw(ctx);
+        }
+        for (var i = this.wrongWords.length - 1; i >= 0; i--) {
+            this.wrongWords[i].draw(ctx);
+        }
+
+        if (!this.isPlaying) {
+            this.backTitleButton.draw(ctx);
+        }
     }
 
     checkHit() {
-        if (isHit(this.player, this.correctWord)) {
-            this.correctWord.reset();
-            this.score++;
+        for (var i = this.correctWords.length - 1; i >= 0; i--) {
+            if (isHit(this.player, this.correctWords[i])) {
+                this.correctWords.splice(i, 1)
+                //RATE_UP
+                this.score++;
+            }
         }
-        if (this.isHitWrongWord(this.player, this.wrongWord)) {
-            this.wrongWord.reset();
-            this.showGameOver();
+        for (var i = this.wrongWords.length - 1; i >= 0; i--) {
+            if (this.isHitWrongWord(this.player, this.wrongWords[i])) {
+                this.wrongWords.splice(i, 1)
+                this.showGameOver();
+            }
         }
     }
 
@@ -106,7 +166,6 @@ class GameScene{
         if (targetA.x <= targetB.x && targetB.x <= targetA.x + targetA.width) {
             if ((targetA.y <= targetB.y && targetA.height + targetA.y >= targetB.y)
              || (targetA.y >= targetB.y && targetB.y + targetB.height >= targetA.y)) {
-
                 return true;
             }
         }
@@ -125,10 +184,12 @@ class GameScene{
         this.canvas.addEventListener("click", this.goBackToTitle.bind(this), false);
     }
 
-    goBackToTitle() {
-        console.log(this.requestId);
-        window.cancelAnimationFrame(this.requestId);  // ループ停止
-        this.canvas.removeEventListener("click", this.goBackToTitle, false);
-        this.goBackTitleCallback();
+    goBackToTitle(event) {
+        if (this.backTitleButton.isContainedArea(event.clientX, event.clientY)) {
+            console.log(this.requestId);
+            window.cancelAnimationFrame(this.requestId);  // ループ停止
+            this.canvas.removeEventListener("click", this.goBackToTitle, false);
+            this.goBackTitleCallback();
+        }
     }
 }
