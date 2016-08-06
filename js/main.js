@@ -2,6 +2,7 @@ importScript('js/Constants.js');
 importScript('js/MyImage.js');
 importScript('js/Player.js');
 importScript('js/Word.js');
+importScript('js/Line.js');
 importScript('js/TitleScene.js');
 importScript('js/GameScene.js');
 
@@ -93,7 +94,8 @@ function importScript(src) {
             "player1" : player1,
             "correctWord" : correctWord,
             "wrongWord" : wrongWord,
-            "backTitle" : backTitle
+            "backTitle" : backTitle,
+            "line" : line,
         }
         gameScene.init(canvas, ctx, args);
 
@@ -166,6 +168,12 @@ function importScript(src) {
         backTitle = new MyImage('images/back_title.png');
         beginLoadAsset();
         backTitle.onload (
+            function () { finishLoadAsset();}
+        );
+
+        line = new MyImage('images/line.png');
+        beginLoadAsset();
+        line.onload (
             function () { finishLoadAsset();}
         );
     };

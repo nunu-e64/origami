@@ -18,6 +18,13 @@ class GameScene{
         this.wrongWordImage = args["wrongWord"].image;
         this.backTitleButton = args["backTitle"];
 
+        this.lines = [];
+        for (var i = 0; i < LINE_NUM + 1; i++) {
+            var line = new Line();
+            line.setImage(args["line"].image);
+            this.lines.push(line);
+        }
+
         this.score = 0;
         this.text = "ゲームスタート"
         this.isPlaying = true;
@@ -44,6 +51,13 @@ class GameScene{
         this.player.setFirstPosition(100, 90);
         this.backTitleButton.x = getCenterPostion(WINDOW_WIDTH, this.backTitleButton.width);
         this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 50;
+
+        this.line = [];
+        for (var i = 0; i < this.lines.length; i++) {
+            this.lines[i].x = 0;
+            this.lines[i].y = PLAYER_FIRST_POS - this.lines[i].height + PLAYER_MOVE_VALUE * i;
+            console.log(this.lines[i].y);
+        }
     }
 
     setHandlers() {
@@ -56,8 +70,14 @@ class GameScene{
         console.log("GameScene click");
         // タッチしたらPlayerを動かす
         if (this.isPlaying) {
-            console.log("move");
-            this.player.move();
+            var y = event.clientY;
+            for (var i = 0; i < LINE_NUM; i++) {
+                if (y >= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * i && y <= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * (i+1)) {
+                    console.log("move");
+                    this.player.move(i);
+                    this.draw();
+                }
+            }
         }
     }
 
@@ -124,7 +144,7 @@ class GameScene{
         } else {
             this.spawnRate = MAX_SPAWN_RATE;
         }
-        console.log("MaxSpeed:" + MAX_SPEED + ", Rate: " + this.spawnRate);
+        // console.log("MaxSpeed:" + MAX_SPEED + ", Rate: " + this.spawnRate);
 
         // 文字描画
         this.drawText();
@@ -144,28 +164,33 @@ class GameScene{
         if (!this.isPlaying) {
             this.backTitleButton.draw(ctx);
         }
+
+        for (var i = 0; i < this.lines.length; i++) {
+            this.lines[i].draw(ctx);
+        }
     }
 
     checkHit() {
         for (var i = this.correctWords.length - 1; i >= 0; i--) {
             if (isHit(this.player, this.correctWords[i])) {
-                this.correctWords.splice(i, 1)
+                this.correctWords.splice(i, 1);
                 //RATE_UP
                 this.score++;
             }
         }
         for (var i = this.wrongWords.length - 1; i >= 0; i--) {
             if (this.isHitWrongWord(this.player, this.wrongWords[i])) {
-                this.wrongWords.splice(i, 1)
+                this.wrongWords.splice(i, 1);
                 this.showGameOver();
             }
         }
     }
 
     isHitWrongWord(targetA, targetB) {
-        if (targetA.x <= targetB.x && targetB.x <= targetA.x + targetA.width) {
-            if ((targetA.y <= targetB.y && targetA.height + targetA.y >= targetB.y)
-             || (targetA.y >= targetB.y && targetB.y + targetB.height >= targetA.y)) {
+
+        if (targetA.x <= targetB.x + 5 && targetB.x + 5 <= targetA.x + targetA.width) {
+            if ((targetA.y <= targetB.y + 10 && targetA.height + targetA.y >= targetB.y + 10)
+             || (targetA.y >= targetB.y + 10 && targetB.y + targetB.height - 10 >= targetA.y)) {
                 return true;
             }
         }

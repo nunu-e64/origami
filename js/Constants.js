@@ -1,8 +1,5 @@
-//矢印キーのコード
-var LEFT_KEY_CODE = 37;
-var RIGHT_KEY_CODE = 39;
-//雪だるまの横位置に加算する変数
-var key_value = 0;
+var WINDOW_WIDTH = 640;
+var WINDOW_HEIGHT = 480;
 
 var PLAYER_FIRST_POS = 90;
 var PLAYER_MOVE_VALUE = 110;
@@ -19,8 +16,9 @@ var INITIAL_SPAWN_RATE = 0.005;
 var RATE_UP_DELTA = 0.0001;
 var MAX_SPAWN_RATE = 0.01;
 
-var WINDOW_WIDTH = 640;
-var WINDOW_HEIGHT = 480;
+var SPAWN_FIRST_INTERVAL = 1.0;
+var SPAWN_INTERVAL_DELTA = 0.05;
+var SPAWN_MAX_INTERVAL = 0.3
 
 
 //中央に配置する画像の X 座標を求める関数

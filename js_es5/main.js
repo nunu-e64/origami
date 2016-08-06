@@ -118,6 +118,7 @@ var GameScene = function () {
             if (this.isPlaying) {
                 console.log("move");
                 this.player.move();
+                this.draw();
             }
         }
     }, {
