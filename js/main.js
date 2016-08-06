@@ -27,16 +27,27 @@ function importScript(src) {
 })();
 
 (function () {
-    //全体で使用する変数
     var canvas = null;
     var ctx = null;
-    var requestId = null;
-
-    var hasStarted = false;
 
     var loadingAssetsCount = 0;
     var loadedAssetsCount = 0;
     var hasStartedAllLoading = false;
+
+    // シーン
+    var titleScene = null;
+    var gameScene = null;
+
+    // アセット
+    var back = null;
+    var backTitle = null;
+    var titleLogo = null;
+    var titlePlayer0 = null;
+    var titlePlayer1 = null;
+    var player0 = null;
+    var player1 = null;
+    var correctWord = null;
+    var wrongWord = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
@@ -62,7 +73,7 @@ function importScript(src) {
     function showTitle() {
         titleScene = null;
         titleScene = new TitleScene();
-        args = {
+        var args = {
             "back" : back,
             "titleLogo" : titleLogo,
             "titlePlayer0" : titlePlayer0,
@@ -76,7 +87,7 @@ function importScript(src) {
     function showGameScene(playerIndex) {
         gameScene = null;
         gameScene = new GameScene();
-        args = {
+        var args = {
             "back" : back,
             "player0" : player0,
             "player1" : player1,
