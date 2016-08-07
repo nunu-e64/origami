@@ -6,13 +6,13 @@ var PLAYER_MOVE_VALUE = 110;
 
 var LINE_NUM = 3;
 
-var MIN_SPEED = 5;
-var MAX_SPEED = 10;
-var MAX_MAX_SPEED = 20;
-var INITIAL_MAX_SPEED = 7;
-var SPEED_UP_DELTA = 0.005;
+var MIN_SPEED = 2;
+var FIRST_MAX_SPEED = 5;
+var MAX_MAX_SPEED = 10;
+var SPEED_UP_DELTA = 0.4;
+var maxSpeed = FIRST_MAX_SPEED;
 
-var INITIAL_SPAWN_RATE = 0.005;
+var FIRST_SPAWN_RATE = 0.005;
 var RATE_UP_DELTA = 0.0001;
 var MAX_SPAWN_RATE = 0.01;
 
@@ -20,6 +20,7 @@ var SPAWN_FIRST_INTERVAL = 1.0;
 var SPAWN_INTERVAL_DELTA = 0.05;
 var SPAWN_MAX_INTERVAL = 0.3
 
+var scene = "";
 
 //中央に配置する画像の X 座標を求める関数
 function getCenterPostion(containerWidth, itemWidth) {
@@ -34,7 +35,7 @@ var now = window.performance && (
     performance.webkitNow );
 
 var getTime = function() {
-    return ( now && now.call( performance ) ) || ( new Date().getTime() );
+    return (( now && now.call( performance ) ) || ( new Date().getTime() )) / 1000;
 }
 
 function isHit(targetA, targetB) {

@@ -12,7 +12,7 @@ var PLAYER_MOVE_VALUE = 110;
 var LINE_NUM = 3;
 
 var MIN_SPEED = 5;
-var MAX_SPEED = 10;
+var maxSpeed = 10;
 var MAX_MAX_SPEED = 20;
 var INITIAL_MAX_SPEED = 7;
 var SPEED_UP_DELTA = 0.005;
@@ -77,7 +77,7 @@ var GameScene = function () {
             this.score = 0;
             this.text = "ゲームスタート";
             this.isPlaying = true;
-            MAX_SPEED = INITIAL_MAX_SPEED;
+            maxSpeed = INITIAL_MAX_SPEED;
             this.spawnRate = INITIAL_SPAWN_RATE;
             this.correctWords = [];
             this.wrongWords = [];
@@ -176,10 +176,10 @@ var GameScene = function () {
             this.spawn();
 
             // レベルアップ
-            if (MAX_SPEED < MAX_MAX_SPEED) {
-                MAX_SPEED += SPEED_UP_DELTA;
+            if (maxSpeed < MAX_MAX_SPEED) {
+                maxSpeed += SPEED_UP_DELTA;
             } else {
-                MAX_SPEED = MAX_MAX_SPEED;
+                maxSpeed = MAX_MAX_SPEED;
             }
 
             if (this.spawnRate < MAX_SPAWN_RATE) {
@@ -187,7 +187,7 @@ var GameScene = function () {
             } else {
                 this.spawnRate = MAX_SPAWN_RATE;
             }
-            console.log("MaxSpeed:" + MAX_SPEED + ", Rate: " + this.spawnRate);
+            console.log("MaxSpeed:" + maxSpeed + ", Rate: " + this.spawnRate);
 
             // 文字描画
             this.drawText();
@@ -461,7 +461,7 @@ var Word = function () {
         value: function reset() {
             this.x = WINDOW_WIDTH;
             this.y = Math.floor(Math.random() * WINDOW_HEIGHT);
-            this.speed = Math.random() * (MAX_SPEED - MIN_SPEED) + MIN_SPEED;
+            this.speed = Math.random() * (maxSpeed - MIN_SPEED) + MIN_SPEED;
         }
     }, {
         key: "move",

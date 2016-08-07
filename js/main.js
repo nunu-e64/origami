@@ -72,8 +72,11 @@ function importScript(src) {
     }
 
     function showTitle() {
-        titleScene = null;
-        titleScene = new TitleScene();
+        scene = "title";
+        if (titleScene == null) {
+            console.log("Create Title");
+            titleScene = new TitleScene();
+        }
         var args = {
             "back" : back,
             "titleLogo" : titleLogo,
@@ -86,8 +89,11 @@ function importScript(src) {
     }
 
     function showGameScene(playerIndex) {
-        gameScene = null;
-        gameScene = new GameScene();
+        scene = "game";
+        if (gameScene == null) {
+            console.log("Create GameScene");
+            gameScene = new GameScene();
+        }
         var args = {
             "back" : back,
             "player0" : player0,

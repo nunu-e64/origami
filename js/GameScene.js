@@ -28,22 +28,26 @@ class GameScene{
         this.score = 0;
         this.text = "ゲームスタート"
         this.isPlaying = true;
-        MAX_SPEED = INITIAL_MAX_SPEED;
-        this.spawnRate = INITIAL_SPAWN_RATE;
+        maxSpeed = FIRST_MAX_SPEED;
+        this.spawnRate = FIRST_SPAWN_RATE;
+        this.spawnInterval = SPAWN_FIRST_INTERVAL;
         this.correctWords = [];
         this.wrongWords = [];
+
+        this.clickHandler = this.clickEvent.bind(this);
+        this.clickBackTitleButtonHandler = this.goBackToTitle.bind(this);
     }
 
     show(playerIndex) {
-        console.log(playerIndex);
         this.player = (playerIndex == 0 ? this.player0 : this.player1);
 
         // 初期配置
-        console.log(this);
         this.setUpLayout();
         this.setHandlers();
 
         // ゲームスタート
+        this.startTime = getTime();
+        this.lastSpawnTime = this.startTime;
         this.renderFrame();
     }
 
@@ -56,16 +60,18 @@ class GameScene{
         for (var i = 0; i < this.lines.length; i++) {
             this.lines[i].x = 0;
             this.lines[i].y = PLAYER_FIRST_POS - this.lines[i].height + PLAYER_MOVE_VALUE * i;
-            console.log(this.lines[i].y);
         }
     }
 
     setHandlers() {
         //Canvas へのタッチイベント設定
-        this.canvas.addEventListener("click", this.clickEvent.bind(this), false);
+        this.canvas.addEventListener("click", this.clickHandler, false);
     }
 
     clickEvent(event) {
+        if (scene != "game") {
+            return;
+        }
         // TODO: ポース画面
         console.log("GameScene click");
         // タッチしたらPlayerを動かす
@@ -73,7 +79,7 @@ class GameScene{
             var y = event.clientY;
             for (var i = 0; i < LINE_NUM; i++) {
                 if (y >= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * i && y <= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * (i+1)) {
-                    console.log("move");
+                    console.log("move: " + i);
                     this.player.move(i);
                     this.draw();
                 }
@@ -82,8 +88,8 @@ class GameScene{
     }
 
     spawn() {
-        var rand = Math.random();
-        if (rand < this.spawnRate) {
+        if (this.currentTime - this.lastSpawnTime > this.spawnInterval) {
+            this.lastSpawnTime = this.currentTime + (this.currentTime - this.lastSpawnTime - this.spawnInterval);
             var word = new Word();
             if (Math.random() < 0.5) {
                 word.setImage(this.correctWordImage);
@@ -95,16 +101,28 @@ class GameScene{
                 console.log("Spawn: wrong " + this.wrongWords.length);
             }
         }
+
+        var rand = Math.random();
+        if (rand < this.spawnRate) {
+        }
     }
 
     renderFrame() {
+        if (scene != "game") {
+            return;
+        }
+
         //ループを開始
         this.requestId = window.requestAnimationFrame(this.renderFrame.bind(this));
+
+        // フレーム測定
+        this.currentTime = getTime();
+        // console.log(this.currentTime - this.startTime);
 
         //canvas をクリア
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // 時間移動
+        // 障害物の移動
         for (var i = this.correctWords.length - 1; i >= 0; i--) {
             this.correctWords[i].move(1);
             if (! this.correctWords[i].isActive()) {
@@ -132,11 +150,16 @@ class GameScene{
         // スポーン
         this.spawn();
 
+        // 文字描画
+        this.drawText();
+    }
+
+    levelUp () {
         // レベルアップ
-        if (MAX_SPEED < MAX_MAX_SPEED) {
-            MAX_SPEED += SPEED_UP_DELTA;
+        if (maxSpeed < MAX_MAX_SPEED) {
+            maxSpeed += SPEED_UP_DELTA;
         } else {
-            MAX_SPEED = MAX_MAX_SPEED;
+            maxSpeed = MAX_MAX_SPEED;
         }
 
         if (this.spawnRate < MAX_SPAWN_RATE) {
@@ -144,10 +167,14 @@ class GameScene{
         } else {
             this.spawnRate = MAX_SPAWN_RATE;
         }
-        // console.log("MaxSpeed:" + MAX_SPEED + ", Rate: " + this.spawnRate);
 
-        // 文字描画
-        this.drawText();
+        if (this.spawnInterval > SPAWN_MAX_INTERVAL) {
+            this.spawnInterval -= SPAWN_INTERVAL_DELTA;
+        } else {
+            this.spawnInterval = SPAWN_MAX_INTERVAL;
+        }
+
+        console.log("maxSpeed: " + maxSpeed + ", interval: " + this.spawnInterval);
     }
 
     draw() {
@@ -174,8 +201,8 @@ class GameScene{
         for (var i = this.correctWords.length - 1; i >= 0; i--) {
             if (isHit(this.player, this.correctWords[i])) {
                 this.correctWords.splice(i, 1);
-                //RATE_UP
                 this.score++;
+                this.levelUp();
             }
         }
         for (var i = this.wrongWords.length - 1; i >= 0; i--) {
@@ -205,15 +232,17 @@ class GameScene{
 
     showGameOver() {
         this.isPlaying = false;
-        this.canvas.removeEventListener("click", this.clickEvent, false);
-        this.canvas.addEventListener("click", this.goBackToTitle.bind(this), false);
+        this.canvas.removeEventListener("click", this.clickHandler, false);
+        this.canvas.addEventListener("click", this.clickBackTitleButtonHandler, false);
     }
 
     goBackToTitle(event) {
+        if (scene != "game" || this.isPlaying) {
+            return;
+        }
         if (this.backTitleButton.isContainedArea(event.clientX, event.clientY)) {
-            console.log(this.requestId);
             window.cancelAnimationFrame(this.requestId);  // ループ停止
-            this.canvas.removeEventListener("click", this.goBackToTitle, false);
+            this.canvas.removeEventListener("click", this.clickBackTitleButtonHandler, false);
             this.goBackTitleCallback();
         }
     }

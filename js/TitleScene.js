@@ -2,7 +2,6 @@
 
 class TitleScene {
     constructor(){
-        this.hasStarted = false;
     }
 
     setGameStartCallback(callback) {
@@ -16,6 +15,9 @@ class TitleScene {
         this.titlePlayer0 = args["titlePlayer0"];
         this.titlePlayer1 = args["titlePlayer1"];
         this.back = args["back"];
+
+        this.hasStarted = false;
+        this.clickHandler = this.clickEvent.bind(this);
     }
 
     show () {
@@ -46,24 +48,22 @@ class TitleScene {
     }
 
     setHandlers(){
-        this.canvas.addEventListener("click", this.clickEvent.bind(this), false);
+        this.canvas.addEventListener("click", this.clickHandler, false);
     }
 
     clickEvent(event) {
         //キャラを選択した時に
         var self = this;
-        if (self.hasStarted) {
+        if (self.hasStarted || scene != "title") {
             return ;
         }
         if (self.titlePlayer0.isContainedArea(event.clientX, event.clientY)) {
-            console.log(self);
-            self.canvas.removeEventListener("click", self.clickEvent, false);
+            self.canvas.removeEventListener("click", this.clickHandler, false);
             self.hasStarted = true;
             self.gameStartCallback(0);
         }
         if (self.titlePlayer1.isContainedArea(event.clientX, event.clientY)) {
-            console.log("hit1");
-            self.canvas.removeEventListener("click", self.clickEvent, false);
+            self.canvas.removeEventListener("click", this.clickHandler, false);
             self.hasStarted = true;
             self.gameStartCallback(1);
         }
