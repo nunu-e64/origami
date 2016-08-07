@@ -1,3 +1,15 @@
+/*////////////////////////////////////////////////////////////////////
+======================================================================
+File Name       : main.js
+Creation Date   : 2016/08/07
+
+Copyright © 2016 nunu-e64. All rights reserved.
+
+This source code or any portion thereof must not be
+reproduced or used in any manner whatsoever.
+======================================================================
+*/////////////////////////////////////////////////////////////////////
+
 var WINDOW_WIDTH = 640;
 var WINDOW_HEIGHT = 480;
 

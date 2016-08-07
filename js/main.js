@@ -49,12 +49,13 @@ function importScript(src) {
     var player1 = null;
     var correctWord = null;
     var wrongWord = null;
+    var line = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
-          loadAssets();
-          hasStartedAllLoading = true;
-          console.log("loadAssets");
+        loadAssets();
+        hasStartedAllLoading = true;
+        console.log("loadAssets");
      });
 
     // アセット読み込みカウンター
@@ -114,10 +115,14 @@ function importScript(src) {
     function loadAssets() {
         //HTML ファイル上の canvas エレメントのインスタンスを取得
         canvas = document.getElementById('bg');
+        canvas.width = WINDOW_WIDTH;
+        canvas.height = WINDOW_HEIGHT;
 
         //2D コンテキストを取得
         ctx = canvas.getContext('2d');
 
+        // デバイスのイベント阻害
+        canvas.addEventListener("touchend", clickPreventHandler);
 
         // 背景
         back = new MyImage("images/dot.jpg");
@@ -184,22 +189,9 @@ function importScript(src) {
         );
     };
 
-    //Player (雪だるまを動かせる右の限界位置)
-    function getRightLimitPosition(containerWidth, itemWidth) {
-        return containerWidth - itemWidth;
-    }
-
-    //当たり判定
-    function isHit(targetA, targetB) {
-        if ((targetA.x <= targetB.x && targetA.width + targetA.x >= targetB.x)
-                || (targetA.x >= targetB.x && targetB.x + targetB.width >= targetA.x)) {
-                   if ((targetA._y <= targetB._y && targetA.height + targetA._y >= targetB._y)
-                       || (targetA._y >= targetB._y && targetB._y + targetB.height >= targetA._y)) {
-                          ctx.font = "bold 20px ‘ＭＳ ゴシック’";
-                          ctx.fillStyle = "red";
-                          ctx.fillText("ヒットしました", getCenterPostion(canvas.clientWidth, 140), 160);
-            }
-        }
+    function clickPreventHandler(event) {
+        // event.preventDefault();
+        console.log("prevent!");
     }
 
 })();

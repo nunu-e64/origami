@@ -34,7 +34,8 @@ class GameScene{
         this.correctWords = [];
         this.wrongWords = [];
 
-        this.clickHandler = this.clickEvent.bind(this);
+        this.touchHandler = this.touchstartEvent.bind(this);
+        this.mousedownHandler = this.mousedownEvent.bind(this);
         this.clickBackTitleButtonHandler = this.goBackToTitle.bind(this);
     }
 
@@ -65,10 +66,20 @@ class GameScene{
 
     setHandlers() {
         //Canvas へのタッチイベント設定
-        this.canvas.addEventListener("click", this.clickHandler, false);
+        this.canvas.addEventListener("touchstart", this.touchHandler, false);
+        this.canvas.addEventListener("mousedown", this.mousedownHandler, false);
+        // this.canvas.addEventListener("mousedown", this.clickHandler, false);
     }
 
-    clickEvent(event) {
+    touchstartEvent(event) {
+        this.clickEvent(event.touches[0].clientY);
+    }
+
+    mousedownEvent(event) {
+        this.clickEvent(event.clientY);
+    }
+
+    clickEvent(y) {
         if (scene != "game") {
             return;
         }
@@ -76,7 +87,6 @@ class GameScene{
         console.log("GameScene click");
         // タッチしたらPlayerを動かす
         if (this.isPlaying) {
-            var y = event.clientY;
             for (var i = 0; i < LINE_NUM; i++) {
                 if (y >= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * i && y <= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * (i+1)) {
                     console.log("move: " + i);
@@ -233,7 +243,8 @@ class GameScene{
 
     showGameOver() {
         this.isPlaying = false;
-        this.canvas.removeEventListener("click", this.clickHandler, false);
+        this.canvas.removeEventListener("touchstart", this.touchHandler, false);
+        this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
         this.canvas.addEventListener("click", this.clickBackTitleButtonHandler, false);
     }
 

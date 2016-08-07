@@ -1,10 +1,20 @@
 ES6_DIR="js"
-ES5_DIR="js_es5"
+ES5_DIR="js"
 
-rm -r ${ES5_DIR}
-mkdir ${ES5_DIR}
-babel ${ES6_DIR}/ -o ${ES5_DIR}/main.js
-sed -i '' -e "s/^importScript/\/\/importScript/g" ${ES5_DIR}/main.js
+if [ $# -ne 1 ]; then
+  echo "指定された引数は$#個です。" 1>&2
+  echo "実行するには1個の引数が必要です。" 1>&2
+  exit 1
+fi
+
+FILE_PATH=${1}/${ES5_DIR}/main.js
+echo ${FILE_PATH}
+
+mkdir -p ${1}/${ES5_DIR}
+babel ${ES6_DIR}/ -o ${FILE_PATH}
+sed -i '' -e "s/^importScript/\/\/importScript/g" ${FILE_PATH}
+
+cp -r images ${1}/
 
 # babel $ES6_DIR"/" -o "js/main_es5.js"
 #

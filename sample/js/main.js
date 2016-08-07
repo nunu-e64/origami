@@ -45,7 +45,7 @@
         });
 
         //雪だるまが進みっぱなしにならないように、 タッチが完了したら 0 に
-        canvas.addEventListener("touchend", function (evnt) {
+        canvas.addEventListener("touched", function (evnt) {
            key_value = 0;
         });
 
