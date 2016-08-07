@@ -90,20 +90,21 @@ class GameScene{
     spawn() {
         if (this.currentTime - this.lastSpawnTime > this.spawnInterval) {
             this.lastSpawnTime = this.currentTime + (this.currentTime - this.lastSpawnTime - this.spawnInterval);
-            var word = new Word();
-            if (Math.random() < 0.5) {
+            if (this.spawnCounter == null) {
+                this.spawnCounter = 0;
+            }
+            this.spawnCounter++;
+            if (this.spawnCounter % 3 != 0) {
+                var word = new Word(true);
                 word.setImage(this.correctWordImage);
                 this.correctWords.push(word);
                 console.log("Spawn: correct " + this.correctWords.length);
             } else {
+                var word = new Word(false);
                 word.setImage(this.wrongWordImage);
                 this.wrongWords.push(word);
                 console.log("Spawn: wrong " + this.wrongWords.length);
             }
-        }
-
-        var rand = Math.random();
-        if (rand < this.spawnRate) {
         }
     }
 
