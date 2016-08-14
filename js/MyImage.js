@@ -7,6 +7,16 @@ class MyImage {
         this.onload(function(){});  //外部からonloadがセットされなかった時にwidth/heightを取得しておくために実行
     }
 
+    setPos(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    addPos(x, y) {
+        this.x += x;
+        this.y += y;
+    }
+
     draw(ctx) {
         ctx.drawImage(this.image, this.x, this.y);
     }

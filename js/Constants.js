@@ -10,6 +10,7 @@ reproduced or used in any manner whatsoever.
 ======================================================================
 */////////////////////////////////////////////////////////////////////
 
+// Constants ////
 var WINDOW_WIDTH = 640;
 var WINDOW_HEIGHT = 480;
 
@@ -28,8 +29,15 @@ var SPAWN_FIRST_INTERVAL = 1.0;
 var SPAWN_INTERVAL_DELTA = 0.05;
 var SPAWN_MAX_INTERVAL = 0.3
 
+var FONT_JPN="'YuGothic',‘ＭＳ ゴシック’";
+var FONT_EN="'Euphemia','Arial'";
+
+var FILTER_BLACK="rgba(0, 0, 0, 0.5)";
+
+// Global Valriable ////
 var scene = "";
 
+// Global Function ////
 //中央に配置する画像の X 座標を求める関数
 function getCenterPostion(containerWidth, itemWidth) {
     return (containerWidth / 2) - (itemWidth / 2);
@@ -56,4 +64,9 @@ function isHit(targetA, targetB) {
         }
     }
     return false;
+}
+
+function changeScene(nextScene) {
+    console.log("Scene: " + scene + "->" + nextScene);
+    scene = nextScene;
 }

@@ -25,6 +25,12 @@ class GameScene{
             this.lines.push(line);
         }
 
+        if (this.result == null) {
+            this.result = new Result();
+            console.log("Create Result");
+        }
+        this.result.init(canvas, args["tweetButton"], args["resultBack"], args["closeButton"]);
+
         this.score = 0;
         this.text = "ゲームスタート"
         this.isPlaying = true;
@@ -52,9 +58,9 @@ class GameScene{
     }
 
     setUpLayout () {
-        this.player.setFirstPosition(100, 90);
+        this.player.setFirstPosition(50, PLAYER_FIRST_POS);
         this.backTitleButton.x = getCenterPostion(WINDOW_WIDTH, this.backTitleButton.width);
-        this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 50;
+        this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 20;
 
         this.line = [];
         for (var i = 0; i < this.lines.length; i++) {
@@ -82,7 +88,6 @@ class GameScene{
         if (scene != "game") {
             return;
         }
-        // TODO: ポース画面
         console.log("GameScene click");
         // タッチしたらPlayerを動かす
         if (this.isPlaying) {
@@ -90,7 +95,6 @@ class GameScene{
                 if (y >= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * i && y <= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * (i+1)) {
                     console.log("move: " + i);
                     this.player.move(i);
-                    this.draw();
                 }
             }
         }
@@ -118,7 +122,7 @@ class GameScene{
     }
 
     renderFrame() {
-        if (scene != "game") {
+        if (scene != "game" && scene != "result") {
             return;
         }
 
@@ -149,6 +153,11 @@ class GameScene{
         //画像を描画
         this.draw();
 
+        //リザルト画面描画
+        if (scene == "result") {
+            this.result.draw(this.ctx);
+        }
+
         // 当たり判定チェック
         if (this.isPlaying) {
             this.checkHit();
@@ -161,7 +170,9 @@ class GameScene{
         this.spawn();
 
         // 文字描画
-        this.drawText();
+        if (this.isPlaying) {
+            this.drawText();
+        }
     }
 
     levelUp () {
@@ -192,12 +203,12 @@ class GameScene{
             this.wrongWords[i].draw(ctx);
         }
 
-        if (!this.isPlaying) {
-            this.backTitleButton.draw(ctx);
-        }
-
         for (var i = 0; i < this.lines.length; i++) {
             this.lines[i].draw(ctx);
+        }
+
+        if (!this.isPlaying) {
+            this.backTitleButton.draw(ctx);
         }
     }
 
@@ -229,7 +240,7 @@ class GameScene{
     }
 
     drawText() {
-        this.ctx.font = "bold 32px ‘ＭＳ ゴシック’";
+        this.ctx.font = "bold 32px " + FONT_JPN;
         this.ctx.fillStyle = "red";
         this.ctx.fillText(this.text, 50, 50);
     }
@@ -239,6 +250,9 @@ class GameScene{
         this.canvas.removeEventListener("touchstart", this.touchHandler, false);
         this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
         this.canvas.addEventListener("click", this.clickBackTitleButtonHandler, false);
+
+        changeScene("result");
+        this.result.show(this.score);
     }
 
     goBackToTitle(event) {
@@ -248,18 +262,7 @@ class GameScene{
         if (this.backTitleButton.isContainedArea(event.clientX, event.clientY)) {
             window.cancelAnimationFrame(this.requestId);  // ループ停止
             this.canvas.removeEventListener("click", this.clickBackTitleButtonHandler, false);
-            this.tweet();
             this.goBackTitleCallback();
         }
-    }
-
-    tweet() {
-        var url = "http://www.test.com";
-        var hashtag = "testtag";
-        var text = "結果をツイート！" + this.score + "点！";
-        var href= "http://twitter.com/share?url="
-　　　　　　　　+ url + "&text=" + text + "&hashtags=" + hashtag + "&";
-        console.log(href);
-        window.open(href);
     }
 }

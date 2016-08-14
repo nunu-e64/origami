@@ -3,6 +3,7 @@ importScript('js/MyImage.js');
 importScript('js/Player.js');
 importScript('js/Word.js');
 importScript('js/Line.js');
+importScript('js/Result.js');
 importScript('js/TitleScene.js');
 importScript('js/GameScene.js');
 
@@ -73,7 +74,7 @@ function importScript(src) {
     }
 
     function showTitle() {
-        scene = "title";
+        changeScene("title");
         if (titleScene == null) {
             console.log("Create Title");
             titleScene = new TitleScene();
@@ -90,7 +91,7 @@ function importScript(src) {
     }
 
     function showGameScene(playerIndex) {
-        scene = "game";
+        changeScene("game");
         if (gameScene == null) {
             console.log("Create GameScene");
             gameScene = new GameScene();
@@ -103,6 +104,9 @@ function importScript(src) {
             "wrongWord" : wrongWord,
             "backTitle" : backTitle,
             "line" : line,
+            "tweetButton" : tweetButton,
+            "resultBack" : resultBack,
+            "closeButton" : closeButton,
         }
         gameScene.init(canvas, ctx, args);
 
@@ -120,6 +124,11 @@ function importScript(src) {
 
         //2D コンテキストを取得
         ctx = canvas.getContext('2d');
+
+
+        // テキストの描画位置指定
+        ctx.textBaseline = "top";
+        ctx.textAlign = "left";
 
         // デバイスのイベント阻害
         canvas.addEventListener("touchend", clickPreventHandler);
@@ -185,6 +194,25 @@ function importScript(src) {
         line = new MyImage('images/line.png');
         beginLoadAsset();
         line.onload (
+            function () { finishLoadAsset();}
+        );
+
+        // リザルトモーダル
+        tweetButton = new MyImage('images/tweet_button.png');
+        beginLoadAsset();
+        tweetButton.onload (
+            function () { finishLoadAsset();}
+        );
+
+        resultBack = new MyImage('images/result_back.png');
+        beginLoadAsset();
+        resultBack.onload (
+            function () { finishLoadAsset();}
+        );
+
+        closeButton = new MyImage('images/close_button.png');
+        beginLoadAsset();
+        closeButton.onload (
             function () { finishLoadAsset();}
         );
     };
