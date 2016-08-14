@@ -153,6 +153,9 @@ class GameScene{
         //画像を描画
         this.draw();
 
+        // 文字描画
+        this.drawText();
+
         //リザルト画面描画
         if (scene == "result") {
             this.result.draw(this.ctx);
@@ -162,17 +165,10 @@ class GameScene{
         if (this.isPlaying) {
             this.checkHit();
             this.text = this.score;
-        } else {
-            this.text = "Game Over : Score " + this.score;
         }
 
         // スポーン
         this.spawn();
-
-        // 文字描画
-        if (this.isPlaying) {
-            this.drawText();
-        }
     }
 
     levelUp () {
@@ -240,9 +236,11 @@ class GameScene{
     }
 
     drawText() {
-        this.ctx.font = "bold 32px " + FONT_JPN;
-        this.ctx.fillStyle = "red";
-        this.ctx.fillText(this.text, 50, 50);
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "bottom";
+        this.ctx.font = "32px " + FONT_EN;
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
     }
 
     showGameOver() {

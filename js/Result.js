@@ -82,9 +82,10 @@ class Result{
         this.tweetButton.draw(ctx);
 
         // 結果画面テキスト表示
+        ctx.textBaseline = "top";
         ctx.textAlign = "center";
         var text = "GAME OVER";
-        ctx.font = "24px " + FONT_EN;
+        ctx.font = "28px " + FONT_EN;
         ctx.fillStyle = "black";
 
         ctx.fillText(text, this.resultBack.x + this.resultBack.width / 2, this.resultBack.y + 20);
@@ -92,17 +93,17 @@ class Result{
         ctx.textAlign = "left";
         ctx.font = "20px " + FONT_EN;
         text = "Your Score is"
-        ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 70);
+        ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 80);
 
         text = "Your Rank is"
-        ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 120);
+        ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 130);
 
         ctx.fillStyle = "rgb(255, 78, 83)";
         ctx.font = "32px " + FONT_EN;
 
-        ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 60);
+        ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 70);
 
-        ctx.fillText(this.rank, this.resultBack.x + 240, this.resultBack.y + 110);
+        ctx.fillText(this.rank, this.resultBack.x + 240, this.resultBack.y + 120);
 
         ctx.globalAlpha = 1.0;
     }
@@ -130,7 +131,7 @@ class Result{
     tweet() {
         var url = "http://www.test.com";
         var hashtag = "testtag";
-        var text = "結果をツイート！" + this.score + "点！";
+        var text = "ミニゲーム挑戦結果！ スコア:"+this.score+"  ランク:" + this.rank;
         var ref= "http://twitter.com/intent/tweet?url="
 　　　　　　　　+ url + "&text=" + text + "&hashtags=" + hashtag + "&";
         console.log(ref);
