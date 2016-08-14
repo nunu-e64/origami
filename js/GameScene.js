@@ -248,7 +248,18 @@ class GameScene{
         if (this.backTitleButton.isContainedArea(event.clientX, event.clientY)) {
             window.cancelAnimationFrame(this.requestId);  // ループ停止
             this.canvas.removeEventListener("click", this.clickBackTitleButtonHandler, false);
+            this.tweet();
             this.goBackTitleCallback();
         }
+    }
+
+    tweet() {
+        var url = "http://www.test.com";
+        var hashtag = "testtag";
+        var text = "結果をツイート！" + this.score + "点！";
+        var href= "http://twitter.com/share?url="
+　　　　　　　　+ url + "&text=" + text + "&hashtags=" + hashtag + "&";
+        console.log(href);
+        window.open(href);
     }
 }
