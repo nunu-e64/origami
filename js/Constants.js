@@ -23,7 +23,6 @@ var MIN_SPEED = 2;
 var FIRST_MAX_SPEED = 4;
 var MAX_MAX_SPEED = 10;
 var SPEED_UP_DELTA = 0.2;
-var maxSpeed = FIRST_MAX_SPEED;
 
 var SPAWN_FIRST_INTERVAL = 1.0;
 var SPAWN_INTERVAL_DELTA = 0.05;
@@ -36,6 +35,7 @@ var FILTER_BLACK="rgba(0, 0, 0, 0.5)";
 
 // Global Valriable ////
 var scene = "";
+var maxSpeed = FIRST_MAX_SPEED;
 
 // Global Function ////
 //中央に配置する画像の X 座標を求める関数

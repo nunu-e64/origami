@@ -14,6 +14,7 @@ class Result{
 
     show(score) {
         this.score = score;
+        this.rank = this.getRank(score);
 
         this.resultBack.setPos(getCenterPostion(WINDOW_WIDTH, this.resultBack.width), getCenterPostion(WINDOW_HEIGHT, this.resultBack.height));
 
@@ -30,12 +31,39 @@ class Result{
         console.log(this.tweetButton);
     }
 
+    getRank(score) {
+        if (score >= 100) {
+            return "SSS";
+        } else if (score >= 80) {
+            return "SS";
+        } else if (score >= 50) {
+            return "S";
+        } else if (score >= 35) {
+            return "A++";
+        } else if (score >= 30) {
+            return "A+";
+        } else if (score >= 25) {
+            return "A";
+        } else if (score >= 20) {
+            return "B++";
+        } else if (score >= 15) {
+            return "B+";
+        } else if (score >= 10) {
+            return "B";
+        } else if (score >= 5) {
+            return "C";
+        } else {
+            return "D";
+        }
+    }
+
     dismiss() {
         changeScene("game");
         this.canvas.removeEventListener("click", this.clickHandler, false);
     }
 
     draw(ctx) {
+        // 画像のフェードイン/スライドイン表示
         if (this.filterAlpha < 1.0) {
             this.filterAlpha += 0.1;
         } else if (this.alpha < 1.0) {
@@ -53,7 +81,28 @@ class Result{
         this.closeButton.draw(ctx);
         this.tweetButton.draw(ctx);
 
-        //text
+        // 結果画面テキスト表示
+        ctx.textAlign = "center";
+        var text = "GAME OVER";
+        ctx.font = "24px " + FONT_EN;
+        ctx.fillStyle = "black";
+
+        ctx.fillText(text, this.resultBack.x + this.resultBack.width / 2, this.resultBack.y + 20);
+
+        ctx.textAlign = "left";
+        ctx.font = "20px " + FONT_EN;
+        text = "Your Score is"
+        ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 70);
+
+        text = "Your Rank is"
+        ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 120);
+
+        ctx.fillStyle = "rgb(255, 78, 83)";
+        ctx.font = "32px " + FONT_EN;
+
+        ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 60);
+
+        ctx.fillText(this.rank, this.resultBack.x + 240, this.resultBack.y + 110);
 
         ctx.globalAlpha = 1.0;
     }
