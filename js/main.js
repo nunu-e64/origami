@@ -125,7 +125,7 @@ function importScript(src) {
         canvas.addEventListener("touchend", clickPreventHandler);
 
         // 背景
-        back = new MyImage("images/dot.jpg");
+        back = new MyImage("images/background.jpg");
         beginLoadAsset();
         back.onload (
             function () { finishLoadAsset();}
