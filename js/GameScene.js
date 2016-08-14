@@ -29,7 +29,6 @@ class GameScene{
         this.text = "ゲームスタート"
         this.isPlaying = true;
         maxSpeed = FIRST_MAX_SPEED;
-        this.spawnRate = FIRST_SPAWN_RATE;
         this.spawnInterval = SPAWN_FIRST_INTERVAL;
         this.correctWords = [];
         this.wrongWords = [];
@@ -171,12 +170,6 @@ class GameScene{
             maxSpeed += SPEED_UP_DELTA;
         } else {
             maxSpeed = MAX_MAX_SPEED;
-        }
-
-        if (this.spawnRate < MAX_SPAWN_RATE) {
-            this.spawnRate += RATE_UP_DELTA;
-        } else {
-            this.spawnRate = MAX_SPAWN_RATE;
         }
 
         if (this.spawnInterval > SPAWN_MAX_INTERVAL) {
