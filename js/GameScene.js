@@ -38,7 +38,9 @@ class GameScene{
         this.spawnInterval = SPAWN_FIRST_INTERVAL;
         this.correctWords = [];
         this.wrongWords = [];
+
         this.count = 0;
+        this.buttonAlpha = 0;
 
         this.touchHandler = this.touchstartEvent.bind(this);
         this.mousedownHandler = this.mousedownEvent.bind(this);
@@ -206,11 +208,21 @@ class GameScene{
         }
 
         if (!this.isPlaying && scene == "game") {
-            var dy = Math.sin(this.count / 10) * 10;
-            var y = this.backTitleButton.y;
-            this.backTitleButton.addPos(0, dy);
+            //ホバリングパターン
+            // var dy = Math.sin(this.count / 10) * 10;
+            // var y = this.backTitleButton.y;
+            // this.backTitleButton.addPos(0, dy);
+            // this.backTitleButton.draw(ctx);
+            // this.backTitleButton.y = y;
+
+            // フェードインパターン
+            if (this.buttonAlpha < 1.0) {
+                this.buttonAlpha += 0.05;
+                this.backTitleButton.addPos(0, 2.5);
+            }
+            ctx.globalAlpha = this.buttonAlpha;
             this.backTitleButton.draw(ctx);
-            this.backTitleButton.y = y;
+            ctx.globalAlpha = 1.0;
         }
     }
 
