@@ -12,6 +12,7 @@ reproduced or used in any manner whatsoever.
 ======================================================================
 */ ////////////////////////////////////////////////////////////////////
 
+// Constants ////
 var WINDOW_WIDTH = 640;
 var WINDOW_HEIGHT = 480;
 
@@ -21,21 +22,24 @@ var PLAYER_MOVE_VALUE = 110;
 var LINE_NUM = 3;
 
 var MIN_SPEED = 2;
-var FIRST_MAX_SPEED = 5;
+var FIRST_MAX_SPEED = 4;
 var MAX_MAX_SPEED = 10;
-var SPEED_UP_DELTA = 0.4;
-var maxSpeed = FIRST_MAX_SPEED;
-
-var FIRST_SPAWN_RATE = 0.005;
-var RATE_UP_DELTA = 0.0001;
-var MAX_SPAWN_RATE = 0.01;
+var SPEED_UP_DELTA = 0.2;
 
 var SPAWN_FIRST_INTERVAL = 1.0;
 var SPAWN_INTERVAL_DELTA = 0.05;
 var SPAWN_MAX_INTERVAL = 0.3;
 
-var scene = "";
+var FONT_JPN = "'YuGothic',‘ＭＳ ゴシック’";
+var FONT_EN = "'Euphemia','Arial'";
 
+var FILTER_BLACK = "rgba(0, 0, 0, 0.5)";
+
+// Global Valriable ////
+var scene = "";
+var maxSpeed = FIRST_MAX_SPEED;
+
+// Global Function ////
 //中央に配置する画像の X 座標を求める関数
 function getCenterPostion(containerWidth, itemWidth) {
     return containerWidth / 2 - itemWidth / 2;
@@ -55,6 +59,11 @@ function isHit(targetA, targetB) {
         }
     }
     return false;
+}
+
+function changeScene(nextScene) {
+    console.log("Scene: " + scene + "->" + nextScene);
+    scene = nextScene;
 }
 "use strict";
 
@@ -93,11 +102,16 @@ var GameScene = function () {
                 this.lines.push(line);
             }
 
+            if (this.result == null) {
+                this.result = new Result();
+                console.log("Create Result");
+            }
+            this.result.init(canvas, args["tweetButton"], args["resultBack"], args["closeButton"]);
+
             this.score = 0;
             this.text = "ゲームスタート";
             this.isPlaying = true;
             maxSpeed = FIRST_MAX_SPEED;
-            this.spawnRate = FIRST_SPAWN_RATE;
             this.spawnInterval = SPAWN_FIRST_INTERVAL;
             this.correctWords = [];
             this.wrongWords = [];
@@ -123,9 +137,9 @@ var GameScene = function () {
     }, {
         key: "setUpLayout",
         value: function setUpLayout() {
-            this.player.setFirstPosition(100, 90);
+            this.player.setFirstPosition(50, PLAYER_FIRST_POS);
             this.backTitleButton.x = getCenterPostion(WINDOW_WIDTH, this.backTitleButton.width);
-            this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 50;
+            this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 20;
 
             this.line = [];
             for (var i = 0; i < this.lines.length; i++) {
@@ -157,7 +171,6 @@ var GameScene = function () {
             if (scene != "game") {
                 return;
             }
-            // TODO: ポース画面
             console.log("GameScene click");
             // タッチしたらPlayerを動かす
             if (this.isPlaying) {
@@ -165,7 +178,6 @@ var GameScene = function () {
                     if (y >= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * i && y <= PLAYER_FIRST_POS + PLAYER_MOVE_VALUE * (i + 1)) {
                         console.log("move: " + i);
                         this.player.move(i);
-                        this.draw();
                     }
                 }
             }
@@ -195,7 +207,7 @@ var GameScene = function () {
     }, {
         key: "renderFrame",
         value: function renderFrame() {
-            if (scene != "game") {
+            if (scene != "game" && scene != "result") {
                 return;
             }
 
@@ -226,19 +238,22 @@ var GameScene = function () {
             //画像を描画
             this.draw();
 
+            // 文字描画
+            this.drawText();
+
+            //リザルト画面描画
+            if (scene == "result") {
+                this.result.draw(this.ctx);
+            }
+
             // 当たり判定チェック
             if (this.isPlaying) {
                 this.checkHit();
                 this.text = this.score;
-            } else {
-                this.text = "Game Over : Score " + this.score;
             }
 
             // スポーン
             this.spawn();
-
-            // 文字描画
-            this.drawText();
         }
     }, {
         key: "levelUp",
@@ -248,12 +263,6 @@ var GameScene = function () {
                 maxSpeed += SPEED_UP_DELTA;
             } else {
                 maxSpeed = MAX_MAX_SPEED;
-            }
-
-            if (this.spawnRate < MAX_SPAWN_RATE) {
-                this.spawnRate += RATE_UP_DELTA;
-            } else {
-                this.spawnRate = MAX_SPAWN_RATE;
             }
 
             if (this.spawnInterval > SPAWN_MAX_INTERVAL) {
@@ -277,12 +286,12 @@ var GameScene = function () {
                 this.wrongWords[i].draw(ctx);
             }
 
-            if (!this.isPlaying) {
-                this.backTitleButton.draw(ctx);
-            }
-
             for (var i = 0; i < this.lines.length; i++) {
                 this.lines[i].draw(ctx);
+            }
+
+            if (!this.isPlaying) {
+                this.backTitleButton.draw(ctx);
             }
         }
     }, {
@@ -316,9 +325,11 @@ var GameScene = function () {
     }, {
         key: "drawText",
         value: function drawText() {
-            this.ctx.font = "bold 32px ‘ＭＳ ゴシック’";
-            this.ctx.fillStyle = "red";
-            this.ctx.fillText(this.text, 50, 50);
+            this.ctx.textAlign = "center";
+            this.ctx.textBaseline = "bottom";
+            this.ctx.font = "32px " + FONT_EN;
+            this.ctx.fillStyle = "black";
+            this.ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
         }
     }, {
         key: "showGameOver",
@@ -327,6 +338,9 @@ var GameScene = function () {
             this.canvas.removeEventListener("touchstart", this.touchHandler, false);
             this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
             this.canvas.addEventListener("click", this.clickBackTitleButtonHandler, false);
+
+            changeScene("result");
+            this.result.show(this.score);
         }
     }, {
         key: "goBackToTitle",
@@ -392,6 +406,18 @@ var MyImage = function () {
     }
 
     _createClass(MyImage, [{
+        key: "setPos",
+        value: function setPos(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+    }, {
+        key: "addPos",
+        value: function addPos(x, y) {
+            this.x += x;
+            this.y += y;
+        }
+    }, {
         key: "draw",
         value: function draw(ctx) {
             ctx.drawImage(this.image, this.x, this.y);
@@ -464,6 +490,163 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var Result = function () {
+    function Result() {
+        _classCallCheck(this, Result);
+    }
+
+    _createClass(Result, [{
+        key: "init",
+        value: function init(canvas, tweetButton, resultBack, closeButton) {
+            this.canvas = canvas;
+            this.tweetButton = tweetButton;
+            this.resultBack = resultBack;
+            this.closeButton = closeButton;
+
+            this.filterAlpha = 0.0;
+            this.alpha = 0.0;
+        }
+    }, {
+        key: "show",
+        value: function show(score) {
+            this.score = score;
+            this.rank = this.getRank(score);
+
+            this.resultBack.setPos(getCenterPostion(WINDOW_WIDTH, this.resultBack.width), getCenterPostion(WINDOW_HEIGHT, this.resultBack.height));
+
+            this.closeButton.setPos(this.resultBack.x + this.resultBack.width - this.closeButton.width / 2, this.resultBack.y - this.closeButton.height / 2);
+
+            this.tweetButton.setPos(this.resultBack.x + getCenterPostion(this.resultBack.width, this.tweetButton.width), this.resultBack.y + this.resultBack.height - this.tweetButton.height);
+
+            this.resultBack.addPos(0, -50);
+            this.closeButton.addPos(0, -50);
+            this.tweetButton.addPos(0, -50);
+
+            this.canvas.addEventListener("click", this.clickHandler.bind(this), false);
+
+            console.log(this.tweetButton);
+        }
+    }, {
+        key: "getRank",
+        value: function getRank(score) {
+            if (score >= 100) {
+                return "SSS";
+            } else if (score >= 80) {
+                return "SS";
+            } else if (score >= 50) {
+                return "S";
+            } else if (score >= 35) {
+                return "A++";
+            } else if (score >= 30) {
+                return "A+";
+            } else if (score >= 25) {
+                return "A";
+            } else if (score >= 20) {
+                return "B++";
+            } else if (score >= 15) {
+                return "B+";
+            } else if (score >= 10) {
+                return "B";
+            } else if (score >= 5) {
+                return "C";
+            } else {
+                return "D";
+            }
+        }
+    }, {
+        key: "dismiss",
+        value: function dismiss() {
+            changeScene("game");
+            this.canvas.removeEventListener("click", this.clickHandler, false);
+        }
+    }, {
+        key: "draw",
+        value: function draw(ctx) {
+            // 画像のフェードイン/スライドイン表示
+            if (this.filterAlpha < 1.0) {
+                this.filterAlpha += 0.1;
+            } else if (this.alpha < 1.0) {
+                this.alpha += 0.05;
+                this.resultBack.addPos(0, 2.5);
+                this.closeButton.addPos(0, 2.5);
+                this.tweetButton.addPos(0, 2.5);
+            }
+            ctx.globalAlpha = this.filterAlpha;
+            ctx.fillStyle = FILTER_BLACK;
+
+            ctx.globalAlpha = this.alpha;
+            ctx.fillRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+            this.resultBack.draw(ctx);
+            this.closeButton.draw(ctx);
+            this.tweetButton.draw(ctx);
+
+            // 結果画面テキスト表示
+            ctx.textBaseline = "top";
+            ctx.textAlign = "center";
+            var text = "GAME OVER";
+            ctx.font = "28px " + FONT_EN;
+            ctx.fillStyle = "black";
+
+            ctx.fillText(text, this.resultBack.x + this.resultBack.width / 2, this.resultBack.y + 20);
+
+            ctx.textAlign = "left";
+            ctx.font = "20px " + FONT_EN;
+            text = "Your Score is";
+            ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 80);
+
+            text = "Your Rank is";
+            ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 130);
+
+            ctx.fillStyle = "rgb(255, 78, 83)";
+            ctx.font = "32px " + FONT_EN;
+
+            ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 70);
+
+            ctx.fillText(this.rank, this.resultBack.x + 240, this.resultBack.y + 120);
+
+            ctx.globalAlpha = 1.0;
+        }
+    }, {
+        key: "clickHandler",
+        value: function clickHandler(event) {
+            if (scene != "result") {
+                return;
+            }
+            console.log(this.resultBack);
+            console.log(this.tweetButton);
+            if (this.tweetButton.isContainedArea(event.clientX, event.clientY)) {
+                this.tweet();
+                return;
+            }
+            if (this.closeButton.isContainedArea(event.clientX, event.clientY)) {
+                this.dismiss();
+                return;
+            }
+            if (!this.resultBack.isContainedArea(event.clientX, event.clientY)) {
+                this.dismiss();
+                return;
+            }
+        }
+    }, {
+        key: "tweet",
+        value: function tweet() {
+            var url = "http://www.test.com";
+            var hashtag = "testtag";
+            var text = "ミニゲーム挑戦結果！ スコア:" + this.score + "  ランク:" + this.rank;
+            var ref = "http://twitter.com/intent/tweet?url=" + url + "&text=" + text + "&hashtags=" + hashtag + "&";
+            console.log(ref);
+            window.open(ref);
+        }
+    }]);
+
+    return Result;
+}();
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var TitleScene = function () {
     function TitleScene() {
         _classCallCheck(this, TitleScene);
@@ -499,20 +682,28 @@ var TitleScene = function () {
     }, {
         key: "setUpLayout",
         value: function setUpLayout() {
+            var ctx = this.ctx;
+
             this.titleLogo;
             this.back.draw(this.ctx);
 
             this.titleLogo.x = getCenterPostion(WINDOW_WIDTH, this.titleLogo.width);
             this.titleLogo.y = 100;
-            this.titleLogo.draw(this.ctx);
+            this.titleLogo.draw(ctx);
 
             this.titlePlayer0.x = 200;
             this.titlePlayer0.y = 250;
-            this.titlePlayer0.draw(this.ctx);
+            this.titlePlayer0.draw(ctx);
 
             this.titlePlayer1.x = WINDOW_WIDTH - 200 - this.titlePlayer1.width;
             this.titlePlayer1.y = 250;
-            this.titlePlayer1.draw(this.ctx);
+            this.titlePlayer1.draw(ctx);
+
+            ctx.textAlign = "right";
+            ctx.textBaseline = "bottom";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.font = "12px " + FONT_EN;
+            ctx.fillText("Created by nunu-e64", WINDOW_WIDTH, WINDOW_HEIGHT);
 
             console.log("show titleLogo");
         }
@@ -602,6 +793,7 @@ var Word = function () {
 //importScript('js/Player.js');
 //importScript('js/Word.js');
 //importScript('js/Line.js');
+//importScript('js/Result.js');
 //importScript('js/TitleScene.js');
 //importScript('js/GameScene.js');
 
@@ -643,6 +835,9 @@ function importScript(src) {
     var correctWord = null;
     var wrongWord = null;
     var line = null;
+    var tweetButton = null;
+    var resultBack = null;
+    var closeButton = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
@@ -666,7 +861,7 @@ function importScript(src) {
     }
 
     function showTitle() {
-        scene = "title";
+        changeScene("title");
         if (titleScene == null) {
             console.log("Create Title");
             titleScene = new TitleScene();
@@ -685,7 +880,7 @@ function importScript(src) {
     }
 
     function showGameScene(playerIndex) {
-        scene = "game";
+        changeScene("game");
         if (gameScene == null) {
             console.log("Create GameScene");
             gameScene = new GameScene();
@@ -697,7 +892,10 @@ function importScript(src) {
             "correctWord": correctWord,
             "wrongWord": wrongWord,
             "backTitle": backTitle,
-            "line": line
+            "line": line,
+            "tweetButton": tweetButton,
+            "resultBack": resultBack,
+            "closeButton": closeButton
         };
         gameScene.init(canvas, ctx, args);
 
@@ -718,11 +916,15 @@ function importScript(src) {
         //2D コンテキストを取得
         ctx = canvas.getContext('2d');
 
+        // テキストの描画位置指定
+        ctx.textBaseline = "top";
+        ctx.textAlign = "left";
+
         // デバイスのイベント阻害
         canvas.addEventListener("touchend", clickPreventHandler);
 
         // 背景
-        back = new MyImage("images/dot.jpg");
+        back = new MyImage("images/background.jpg");
         beginLoadAsset();
         back.onload(function () {
             finishLoadAsset();
@@ -781,6 +983,25 @@ function importScript(src) {
         line = new MyImage('images/line.png');
         beginLoadAsset();
         line.onload(function () {
+            finishLoadAsset();
+        });
+
+        // リザルトモーダル
+        tweetButton = new MyImage('images/tweet_button.png');
+        beginLoadAsset();
+        tweetButton.onload(function () {
+            finishLoadAsset();
+        });
+
+        resultBack = new MyImage('images/result_back.png');
+        beginLoadAsset();
+        resultBack.onload(function () {
+            finishLoadAsset();
+        });
+
+        closeButton = new MyImage('images/close_button.png');
+        beginLoadAsset();
+        closeButton.onload(function () {
             finishLoadAsset();
         });
     };

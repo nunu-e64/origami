@@ -51,6 +51,9 @@ function importScript(src) {
     var correctWord = null;
     var wrongWord = null;
     var line = null;
+    var tweetButton = null;
+    var resultBack = null;
+    var closeButton = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
