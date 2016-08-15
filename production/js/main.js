@@ -116,6 +116,9 @@ var GameScene = function () {
             this.correctWords = [];
             this.wrongWords = [];
 
+            this.count = 0;
+            this.buttonAlpha = 0;
+
             this.touchHandler = this.touchstartEvent.bind(this);
             this.mousedownHandler = this.mousedownEvent.bind(this);
             this.clickBackTitleButtonHandler = this.goBackToTitle.bind(this);
@@ -139,7 +142,8 @@ var GameScene = function () {
         value: function setUpLayout() {
             this.player.setFirstPosition(50, PLAYER_FIRST_POS);
             this.backTitleButton.x = getCenterPostion(WINDOW_WIDTH, this.backTitleButton.width);
-            this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 20;
+            // this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 20;
+            this.backTitleButton.y = getCenterPostion(WINDOW_HEIGHT, this.backTitleButton.height);
 
             this.line = [];
             for (var i = 0; i < this.lines.length; i++) {
@@ -157,11 +161,15 @@ var GameScene = function () {
     }, {
         key: "touchstartEvent",
         value: function touchstartEvent(event) {
+            event.preventDefault();
+            console.log("prevent!");
             this.clickEvent(event.touches[0].clientY);
         }
     }, {
         key: "mousedownEvent",
         value: function mousedownEvent(event) {
+            event.preventDefault();
+            console.log("prevent!");
             this.clickEvent(event.clientY);
         }
     }, {
@@ -207,6 +215,8 @@ var GameScene = function () {
             if (scene != "game" && scene != "result") {
                 return;
             }
+
+            this.count++;
 
             //ループを開始
             this.requestId = window.requestAnimationFrame(this.renderFrame.bind(this));
@@ -288,8 +298,22 @@ var GameScene = function () {
                 this.wrongWords[i].draw(ctx);
             }
 
-            if (!this.isPlaying) {
+            if (!this.isPlaying && scene == "game") {
+                //ホバリングパターン
+                // var dy = Math.sin(this.count / 10) * 10;
+                // var y = this.backTitleButton.y;
+                // this.backTitleButton.addPos(0, dy);
+                // this.backTitleButton.draw(ctx);
+                // this.backTitleButton.y = y;
+
+                // フェードインパターン
+                if (this.buttonAlpha < 1.0) {
+                    this.buttonAlpha += 0.05;
+                    this.backTitleButton.addPos(0, 2.5);
+                }
+                ctx.globalAlpha = this.buttonAlpha;
                 this.backTitleButton.draw(ctx);
+                ctx.globalAlpha = 1.0;
             }
         }
     }, {
@@ -312,7 +336,6 @@ var GameScene = function () {
     }, {
         key: "isHitWrongWord",
         value: function isHitWrongWord(targetA, targetB) {
-
             if (targetA.x <= targetB.x + 5 && targetB.x + 5 <= targetA.x + targetA.width) {
                 if (targetA.y <= targetB.y + 10 && targetA.height + targetA.y >= targetB.y + 10 || targetA.y >= targetB.y + 10 && targetB.y + targetB.height - 10 >= targetA.y) {
                     return true;
@@ -343,6 +366,9 @@ var GameScene = function () {
     }, {
         key: "goBackToTitle",
         value: function goBackToTitle(event) {
+            event.preventDefault();
+            console.log("prevent!");
+
             if (scene != "game" || this.isPlaying) {
                 return;
             }
@@ -555,7 +581,6 @@ var Result = function () {
         value: function dismiss() {
             changeScene("game");
             this.canvas.removeEventListener("click", this.clickHandler, false);
-            console.log("dismiss");
         }
     }, {
         key: "draw",
@@ -600,7 +625,7 @@ var Result = function () {
             text = "Your Rank is";
             ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 130);
 
-            ctx.fillStyle = "rgb(255, 78, 83)";
+            ctx.fillStyle = "rgb(255, 255, 255)"; //"rgb(255, 78, 83)";
             ctx.font = "32px " + FONT_EN;
 
             ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 70);
@@ -612,6 +637,9 @@ var Result = function () {
     }, {
         key: "clickEvent",
         value: function clickEvent(event) {
+            event.preventDefault();
+            console.log("prevent!");
+
             if (scene != "result") {
                 return;
             }
@@ -716,6 +744,9 @@ var TitleScene = function () {
     }, {
         key: "clickEvent",
         value: function clickEvent(event) {
+            event.preventDefault();
+            console.log("prevent!");
+
             //キャラを選択した時に
             var self = this;
             if (self.hasStarted || scene != "title") {
@@ -921,10 +952,10 @@ function importScript(src) {
         ctx.textAlign = "left";
 
         // デバイスのイベント阻害
-        canvas.addEventListener("touchend", clickPreventHandler);
+        // canvas.addEventListener("click", clickPreventHandler);
 
         // 背景
-        back = new MyImage("images/background.jpg");
+        back = new MyImage("images/background.png");
         beginLoadAsset();
         back.onload(function () {
             finishLoadAsset();
@@ -1007,7 +1038,7 @@ function importScript(src) {
     };
 
     function clickPreventHandler(event) {
-        // event.preventDefault();
+        event.preventDefault();
         console.log("prevent!");
     }
 })();
