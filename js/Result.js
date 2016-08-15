@@ -10,6 +10,9 @@ class Result{
 
         this.filterAlpha = 0.0;
         this.alpha = 0.0;
+        this.hasSetClickHandler = false;
+
+        this.clickHandler = this.clickEvent.bind(this);
     }
 
     show(score) {
@@ -25,10 +28,6 @@ class Result{
         this.resultBack.addPos(0, -50);
         this.closeButton.addPos(0, -50);
         this.tweetButton.addPos(0, -50);
-
-        this.canvas.addEventListener("click", this.clickHandler.bind(this), false);
-
-        console.log(this.tweetButton);
     }
 
     getRank(score) {
@@ -71,6 +70,11 @@ class Result{
             this.resultBack.addPos(0, 2.5);
             this.closeButton.addPos(0, 2.5);
             this.tweetButton.addPos(0, 2.5);
+        } else {
+            if (! this.hasSetClickHandler) {
+                this.canvas.addEventListener("click", this.clickHandler, false);
+                this.hasSetClickHandler = true;
+            }
         }
         ctx.globalAlpha = this.filterAlpha;
         ctx.fillStyle = FILTER_BLACK;
@@ -108,12 +112,10 @@ class Result{
         ctx.globalAlpha = 1.0;
     }
 
-    clickHandler(event) {
+    clickEvent(event) {
         if (scene != "result") {
             return;
         }
-        console.log(this.resultBack);
-        console.log(this.tweetButton);
         if (this.tweetButton.isContainedArea(event.clientX, event.clientY)) {
             this.tweet();
             return;

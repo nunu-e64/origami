@@ -191,16 +191,17 @@ class GameScene{
     draw() {
         var ctx = this.ctx;
         this.back.draw(ctx);
+
+        for (var i = 0; i < this.lines.length; i++) {
+            this.lines[i].draw(ctx);
+        }
+
         this.player.draw(ctx);
         for (var i = this.correctWords.length - 1; i >= 0; i--) {
             this.correctWords[i].draw(ctx);
         }
         for (var i = this.wrongWords.length - 1; i >= 0; i--) {
             this.wrongWords[i].draw(ctx);
-        }
-
-        for (var i = 0; i < this.lines.length; i++) {
-            this.lines[i].draw(ctx);
         }
 
         if (!this.isPlaying) {

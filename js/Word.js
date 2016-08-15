@@ -11,7 +11,6 @@ class Word {
     }
 
     reset() {
-        console.log(this.isCorrect);
         this.x = WINDOW_WIDTH;
         this.y = Math.floor(Math.random() * WINDOW_HEIGHT);
         this.speed = Math.random() * (maxSpeed - MIN_SPEED) + MIN_SPEED;
