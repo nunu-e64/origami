@@ -102,7 +102,7 @@ class Result{
         text = "Your Rank is"
         ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 130);
 
-        ctx.fillStyle = "rgb(255, 78, 83)";
+        ctx.fillStyle = "rgb(255, 255, 255)"//"rgb(255, 78, 83)";
         ctx.font = "32px " + FONT_EN;
 
         ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 70);
