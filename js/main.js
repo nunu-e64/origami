@@ -128,16 +128,15 @@ function importScript(src) {
         //2D コンテキストを取得
         ctx = canvas.getContext('2d');
 
-
         // テキストの描画位置指定
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
 
         // デバイスのイベント阻害
-        canvas.addEventListener("touchend", clickPreventHandler);
+        // canvas.addEventListener("click", clickPreventHandler);
 
         // 背景
-        back = new MyImage("images/background.jpg");
+        back = new MyImage("images/background.png");
         beginLoadAsset();
         back.onload (
             function () { finishLoadAsset();}
@@ -221,7 +220,7 @@ function importScript(src) {
     };
 
     function clickPreventHandler(event) {
-        // event.preventDefault();
+        event.preventDefault();
         console.log("prevent!");
     }
 

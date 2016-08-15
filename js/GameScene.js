@@ -80,10 +80,14 @@ class GameScene{
     }
 
     touchstartEvent(event) {
+        event.preventDefault();
+        console.log("prevent!");
         this.clickEvent(event.touches[0].clientY);
     }
 
     mousedownEvent(event) {
+        event.preventDefault();
+        console.log("prevent!");
         this.clickEvent(event.clientY);
     }
 
@@ -243,7 +247,6 @@ class GameScene{
     }
 
     isHitWrongWord(targetA, targetB) {
-
         if (targetA.x <= targetB.x + 5 && targetB.x + 5 <= targetA.x + targetA.width) {
             if ((targetA.y <= targetB.y + 10 && targetA.height + targetA.y >= targetB.y + 10)
              || (targetA.y >= targetB.y + 10 && targetB.y + targetB.height - 10 >= targetA.y)) {
@@ -272,6 +275,9 @@ class GameScene{
     }
 
     goBackToTitle(event) {
+        event.preventDefault();
+        console.log("prevent!");
+
         if (scene != "game" || this.isPlaying) {
             return;
         }

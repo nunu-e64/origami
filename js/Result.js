@@ -113,6 +113,9 @@ class Result{
     }
 
     clickEvent(event) {
+        event.preventDefault();
+        console.log("prevent!");
+
         if (scene != "result") {
             return;
         }

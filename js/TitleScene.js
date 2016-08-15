@@ -60,6 +60,9 @@ class TitleScene {
     }
 
     clickEvent(event) {
+        event.preventDefault();
+        console.log("prevent!");
+
         //キャラを選択した時に
         var self = this;
         if (self.hasStarted || scene != "title") {
