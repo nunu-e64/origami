@@ -153,7 +153,6 @@ var GameScene = function () {
             //Canvas へのタッチイベント設定
             this.canvas.addEventListener("touchstart", this.touchHandler, false);
             this.canvas.addEventListener("mousedown", this.mousedownHandler, false);
-            // this.canvas.addEventListener("mousedown", this.clickHandler, false);
         }
     }, {
         key: "touchstartEvent",
@@ -195,12 +194,10 @@ var GameScene = function () {
                     var word = new Word(true);
                     word.setImage(this.correctWordImage);
                     this.correctWords.push(word);
-                    console.log("Spawn: correct " + this.correctWords.length);
                 } else {
                     var word = new Word(false);
                     word.setImage(this.wrongWordImage);
                     this.wrongWords.push(word);
-                    console.log("Spawn: wrong " + this.wrongWords.length);
                 }
             }
         }
@@ -278,16 +275,17 @@ var GameScene = function () {
         value: function draw() {
             var ctx = this.ctx;
             this.back.draw(ctx);
+
+            for (var i = 0; i < this.lines.length; i++) {
+                this.lines[i].draw(ctx);
+            }
+
             this.player.draw(ctx);
             for (var i = this.correctWords.length - 1; i >= 0; i--) {
                 this.correctWords[i].draw(ctx);
             }
             for (var i = this.wrongWords.length - 1; i >= 0; i--) {
                 this.wrongWords[i].draw(ctx);
-            }
-
-            for (var i = 0; i < this.lines.length; i++) {
-                this.lines[i].draw(ctx);
             }
 
             if (!this.isPlaying) {
@@ -505,6 +503,9 @@ var Result = function () {
 
             this.filterAlpha = 0.0;
             this.alpha = 0.0;
+            this.hasSetClickHandler = false;
+
+            this.clickHandler = this.clickEvent.bind(this);
         }
     }, {
         key: "show",
@@ -521,10 +522,6 @@ var Result = function () {
             this.resultBack.addPos(0, -50);
             this.closeButton.addPos(0, -50);
             this.tweetButton.addPos(0, -50);
-
-            this.canvas.addEventListener("click", this.clickHandler.bind(this), false);
-
-            console.log(this.tweetButton);
         }
     }, {
         key: "getRank",
@@ -558,6 +555,7 @@ var Result = function () {
         value: function dismiss() {
             changeScene("game");
             this.canvas.removeEventListener("click", this.clickHandler, false);
+            console.log("dismiss");
         }
     }, {
         key: "draw",
@@ -570,6 +568,11 @@ var Result = function () {
                 this.resultBack.addPos(0, 2.5);
                 this.closeButton.addPos(0, 2.5);
                 this.tweetButton.addPos(0, 2.5);
+            } else {
+                if (!this.hasSetClickHandler) {
+                    this.canvas.addEventListener("click", this.clickHandler, false);
+                    this.hasSetClickHandler = true;
+                }
             }
             ctx.globalAlpha = this.filterAlpha;
             ctx.fillStyle = FILTER_BLACK;
@@ -607,13 +610,11 @@ var Result = function () {
             ctx.globalAlpha = 1.0;
         }
     }, {
-        key: "clickHandler",
-        value: function clickHandler(event) {
+        key: "clickEvent",
+        value: function clickEvent(event) {
             if (scene != "result") {
                 return;
             }
-            console.log(this.resultBack);
-            console.log(this.tweetButton);
             if (this.tweetButton.isContainedArea(event.clientX, event.clientY)) {
                 this.tweet();
                 return;
@@ -759,7 +760,6 @@ var Word = function () {
     }, {
         key: "reset",
         value: function reset() {
-            console.log(this.isCorrect);
             this.x = WINDOW_WIDTH;
             this.y = Math.floor(Math.random() * WINDOW_HEIGHT);
             this.speed = Math.random() * (maxSpeed - MIN_SPEED) + MIN_SPEED;

@@ -38,6 +38,7 @@ class GameScene{
         this.spawnInterval = SPAWN_FIRST_INTERVAL;
         this.correctWords = [];
         this.wrongWords = [];
+        this.count = 0;
 
         this.touchHandler = this.touchstartEvent.bind(this);
         this.mousedownHandler = this.mousedownEvent.bind(this);
@@ -60,7 +61,8 @@ class GameScene{
     setUpLayout () {
         this.player.setFirstPosition(50, PLAYER_FIRST_POS);
         this.backTitleButton.x = getCenterPostion(WINDOW_WIDTH, this.backTitleButton.width);
-        this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 20;
+        // this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 20;
+        this.backTitleButton.y =         getCenterPostion(WINDOW_HEIGHT, this.backTitleButton.height);
 
         this.line = [];
         for (var i = 0; i < this.lines.length; i++) {
@@ -122,6 +124,8 @@ class GameScene{
         if (scene != "game" && scene != "result") {
             return;
         }
+
+        this.count++;
 
         //ループを開始
         this.requestId = window.requestAnimationFrame(this.renderFrame.bind(this));
@@ -201,8 +205,12 @@ class GameScene{
             this.wrongWords[i].draw(ctx);
         }
 
-        if (!this.isPlaying) {
+        if (!this.isPlaying && scene == "game") {
+            var dy = Math.sin(this.count / 10) * 10;
+            var y = this.backTitleButton.y;
+            this.backTitleButton.addPos(0, dy);
             this.backTitleButton.draw(ctx);
+            this.backTitleButton.y = y;
         }
     }
 

@@ -59,7 +59,6 @@ class Result{
     dismiss() {
         changeScene("game");
         this.canvas.removeEventListener("click", this.clickHandler, false);
-        console.log("dismiss");
     }
 
     draw(ctx) {
