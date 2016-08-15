@@ -73,7 +73,6 @@ class GameScene{
         //Canvas へのタッチイベント設定
         this.canvas.addEventListener("touchstart", this.touchHandler, false);
         this.canvas.addEventListener("mousedown", this.mousedownHandler, false);
-        // this.canvas.addEventListener("mousedown", this.clickHandler, false);
     }
 
     touchstartEvent(event) {
@@ -111,12 +110,10 @@ class GameScene{
                 var word = new Word(true);
                 word.setImage(this.correctWordImage);
                 this.correctWords.push(word);
-                console.log("Spawn: correct " + this.correctWords.length);
             } else {
                 var word = new Word(false);
                 word.setImage(this.wrongWordImage);
                 this.wrongWords.push(word);
-                console.log("Spawn: wrong " + this.wrongWords.length);
             }
         }
     }
