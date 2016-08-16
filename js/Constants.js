@@ -14,8 +14,8 @@ reproduced or used in any manner whatsoever.
 var WINDOW_WIDTH = 640;
 var WINDOW_HEIGHT = 480;
 
-var PLAYER_FIRST_POS = 90;
-var PLAYER_MOVE_VALUE = 110;
+var PLAYER_FIRST_POS = 5;
+var PLAYER_MOVE_VALUE = 160;
 
 var LINE_NUM = 3;
 

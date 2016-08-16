@@ -19,7 +19,7 @@ class GameScene{
         this.backTitleButton = args["backTitle"];
 
         this.lines = [];
-        for (var i = 0; i < LINE_NUM + 1; i++) {
+        for (var i = 0; i < LINE_NUM - 1; i++) {
             var line = new Line();
             line.setImage(args["line"].image);
             this.lines.push(line);
@@ -69,7 +69,7 @@ class GameScene{
         this.line = [];
         for (var i = 0; i < this.lines.length; i++) {
             this.lines[i].x = 0;
-            this.lines[i].y = PLAYER_FIRST_POS - this.lines[i].height + PLAYER_MOVE_VALUE * i;
+            this.lines[i].y = PLAYER_MOVE_VALUE * (i + 1) + i * 6;
         }
     }
 
@@ -118,10 +118,12 @@ class GameScene{
                 var word = new Word(true);
                 word.setImage(this.correctWordImage);
                 this.correctWords.push(word);
+                console.log("Spawn Correct");
             } else {
                 var word = new Word(false);
                 word.setImage(this.wrongWordImage);
                 this.wrongWords.push(word);
+                console.log("Spawn Wrong");
             }
         }
     }
@@ -257,11 +259,18 @@ class GameScene{
     }
 
     drawText() {
-        this.ctx.textAlign = "center";
-        this.ctx.textBaseline = "bottom";
-        this.ctx.font = "32px " + FONT_EN;
-        this.ctx.fillStyle = "black";
-        this.ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
+        var ctx = this.ctx
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.font = "italic 32px " + FONT_EN;
+        ctx.fillStyle = "black";
+        ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
+
+        ctx.textAlign = "right";
+        ctx.textBaseline = "bottom";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.3)"
+        ctx.font = "12px " + FONT_EN;
+        ctx.fillText("Sound by 煉獄庭園", WINDOW_WIDTH, WINDOW_HEIGHT);
     }
 
     showGameOver() {

@@ -1,18 +1,18 @@
 class Word {
     constructor(isCorrect) {
         this.isCorrect = isCorrect;
-        this.reset();
     }
 
     setImage(img) {
         this.image = img;
         this.width = this.image.width;
         this.height = this.image.height;
+        this.reset();
     }
 
     reset() {
         this.x = WINDOW_WIDTH;
-        this.y = Math.floor(Math.random() * WINDOW_HEIGHT);
+        this.y = Math.floor(Math.random() * (WINDOW_HEIGHT + this.height)) - this.height;
         this.speed = Math.random() * (maxSpeed - MIN_SPEED) + MIN_SPEED;
     }
 

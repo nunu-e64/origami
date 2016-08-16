@@ -21,7 +21,7 @@ class Result{
 
         this.resultBack.setPos(getCenterPostion(WINDOW_WIDTH, this.resultBack.width), getCenterPostion(WINDOW_HEIGHT, this.resultBack.height));
 
-        this.closeButton.setPos(this.resultBack.x + this.resultBack.width - this.closeButton.width / 2, this.resultBack.y - this.closeButton.height / 2);
+        this.closeButton.setPos(this.resultBack.x - 10 + this.resultBack.width - this.closeButton.width / 2, this.resultBack.y + 10 - this.closeButton.height / 2);
 
         this.tweetButton.setPos(this.resultBack.x + getCenterPostion(this.resultBack.width, this.tweetButton.width), this.resultBack.y + this.resultBack.height - this.tweetButton.height);
 
@@ -33,9 +33,9 @@ class Result{
     getRank(score) {
         if (score >= 100) {
             return "SSS";
-        } else if (score >= 80) {
-            return "SS";
         } else if (score >= 50) {
+            return "SS";
+        } else if (score >= 40) {
             return "S";
         } else if (score >= 35) {
             return "A++";
@@ -50,6 +50,10 @@ class Result{
         } else if (score >= 10) {
             return "B";
         } else if (score >= 5) {
+            return "C++";
+        } else if (score >= 3) {
+            return "C+";
+        } else if (score >= 1) {
             return "C";
         } else {
             return "D";
@@ -89,25 +93,24 @@ class Result{
         ctx.textBaseline = "top";
         ctx.textAlign = "center";
         var text = "GAME OVER";
-        ctx.font = "28px " + FONT_EN;
+        ctx.font = "italic 28px " + FONT_EN;
         ctx.fillStyle = "black";
 
         ctx.fillText(text, this.resultBack.x + this.resultBack.width / 2, this.resultBack.y + 20);
 
         ctx.textAlign = "left";
-        ctx.font = "20px " + FONT_EN;
-        text = "Your Score is"
+        ctx.font = "italic 20px " + FONT_EN;
+        text = "Your Score ... "
         ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 80);
 
-        text = "Your Rank is"
+        text = "Player Rank ... "
         ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 130);
 
-        ctx.fillStyle = "rgb(255, 255, 255)"//"rgb(255, 78, 83)";
-        ctx.font = "32px " + FONT_EN;
+        ctx.fillStyle = "rgb(255, 78, 83)";
+        ctx.font = "italic 32px " + FONT_EN;
 
         ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 70);
-
-        ctx.fillText(this.rank, this.resultBack.x + 240, this.resultBack.y + 120);
+        ctx.fillText(this.rank, this.resultBack.x + 250, this.resultBack.y + 120);
 
         ctx.globalAlpha = 1.0;
     }
@@ -124,10 +127,6 @@ class Result{
             return;
         }
         if (this.closeButton.isContainedArea(event.clientX, event.clientY)) {
-            this.dismiss();
-            return;
-        }
-        if (! this.resultBack.isContainedArea(event.clientX, event.clientY)) {
             this.dismiss();
             return;
         }
