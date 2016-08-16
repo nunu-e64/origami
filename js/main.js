@@ -55,6 +55,9 @@ function importScript(src) {
     var resultBack = null;
     var closeButton = null;
 
+    // BGM
+    var bgm = null;
+
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
         loadAssets();
@@ -134,6 +137,12 @@ function importScript(src) {
 
         // デバイスのイベント阻害
         // canvas.addEventListener("click", clickPreventHandler);
+
+        // 音楽
+        bgm = new Audio("music/bgm." + AUDIO_EXT);
+        bgm.loop = true;
+        bgm.volume = 1.0;
+        bgm.play();
 
         // 背景
         back = new MyImage("images/background.png");
