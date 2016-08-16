@@ -38,6 +38,7 @@ class GameScene{
         this.spawnInterval = SPAWN_FIRST_INTERVAL;
         this.correctWords = [];
         this.wrongWords = [];
+        this.lastWord = null;
 
         this.count = 0;
         this.buttonAlpha = 0;
@@ -213,6 +214,10 @@ class GameScene{
             this.wrongWords[i].draw(ctx);
         }
 
+        if (this.lastWord != null) {
+            this.lastWord.draw(ctx);
+        }
+
         if (!this.isPlaying && scene == "game") {
             //ホバリングパターン
             // var dy = Math.sin(this.count / 10) * 10;
@@ -242,6 +247,7 @@ class GameScene{
         }
         for (var i = this.wrongWords.length - 1; i >= 0; i--) {
             if (this.isHitWrongWord(this.player, this.wrongWords[i])) {
+                this.lastWord = this.wrongWords[i];
                 this.wrongWords.splice(i, 1);
                 this.showGameOver();
             }
