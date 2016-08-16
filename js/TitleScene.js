@@ -17,7 +17,8 @@ class TitleScene {
         this.back = args["back"];
 
         this.hasStarted = false;
-        this.clickHandler = this.clickEvent.bind(this);
+        this.touchHandler = this.touchEvent.bind(this);
+        this.mousedownHandler = this.mousedownEvent.bind(this);
     }
 
     show () {
@@ -56,27 +57,38 @@ class TitleScene {
     }
 
     setHandlers(){
-        this.canvas.addEventListener("click", this.clickHandler, false);
+        this.canvas.addEventListener("touchstart", this.touchHandler, false);
+        this.canvas.addEventListener("mousedown", this.mousedownHandler, false);
     }
 
-    clickEvent(event) {
+    touchEvent(event) {
         event.preventDefault();
-        console.log("prevent!");
+        console.log("prevent touchstart!");
+        this.clickEvent(event.touches[0].clientX, event.touches[0].clientY);
+    }
 
+    mousedownEvent(event) {
+        event.preventDefault();
+        console.log("prevent mousedown!");
+        this.clickEvent(event.clientX, event.clientY);
+    }
+
+    clickEvent(x, y) {
         //キャラを選択した時に
-        var self = this;
-        if (self.hasStarted || scene != "title") {
+        if (this.hasStarted || scene != "title") {
             return ;
         }
-        if (self.titlePlayer0.isContainedArea(event.clientX, event.clientY)) {
-            self.canvas.removeEventListener("click", this.clickHandler, false);
-            self.hasStarted = true;
-            self.gameStartCallback(0);
+        if (this.titlePlayer0.isContainedArea(x, y)) {
+            this.canvas.removeEventListener("touchstart", this.touchHandler, false);
+            this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
+            this.hasStarted = true;
+            this.gameStartCallback(0);
         }
-        if (self.titlePlayer1.isContainedArea(event.clientX, event.clientY)) {
-            self.canvas.removeEventListener("click", this.clickHandler, false);
-            self.hasStarted = true;
-            self.gameStartCallback(1);
+        if (this.titlePlayer1.isContainedArea(x, y)) {
+            this.canvas.removeEventListener("touchstart", this.touchHandler, false);
+            this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
+            this.hasStarted = true;
+            this.gameStartCallback(1);
         }
     }
 

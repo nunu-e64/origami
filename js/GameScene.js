@@ -45,7 +45,8 @@ class GameScene{
 
         this.touchHandler = this.touchstartEvent.bind(this);
         this.mousedownHandler = this.mousedownEvent.bind(this);
-        this.clickBackTitleButtonHandler = this.goBackToTitle.bind(this);
+        this.touchBackTitleButtonHandler = this.touchBackToTitleEvent.bind(this);
+        this.mousedownBackTitleButtonHandler = this.mousedownBackToTitleEvent.bind(this);
     }
 
     show(playerIndex) {
@@ -283,22 +284,33 @@ class GameScene{
         this.isPlaying = false;
         this.canvas.removeEventListener("touchstart", this.touchHandler, false);
         this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
-        this.canvas.addEventListener("click", this.clickBackTitleButtonHandler, false);
+        this.canvas.addEventListener("touchstart", this.touchBackTitleButtonHandler, false);
+        this.canvas.addEventListener("mousedown", this.mousedownBackTitleButtonHandler, false);
 
         changeScene("result");
         this.result.show(this.score);
     }
 
-    goBackToTitle(event) {
+    touchBackToTitleEvent(event) {
         event.preventDefault();
-        console.log("prevent!");
+        console.log("prevent touchstart!");
+        this.goBackToTitle(event.touches[0].clientX, event.touches[0].clientY);
+    }
 
+    mousedownBackToTitleEvent(event) {
+        event.preventDefault();
+        console.log("prevent mousedown!");
+        this.goBackToTitle(event.clientX, event.clientY);
+    }
+
+    goBackToTitle(x, y) {
         if (scene != "game" || this.isPlaying) {
             return;
         }
-        if (this.backTitleButton.isContainedArea(event.clientX, event.clientY)) {
+        if (this.backTitleButton.isContainedArea(x, y)) {
             window.cancelAnimationFrame(this.requestId);  // ループ停止
-            this.canvas.removeEventListener("click", this.clickBackTitleButtonHandler, false);
+            this.canvas.removeEventListener("touchstart", this.touchBackTitleButtonHandler, false);
+            this.canvas.removeEventListener("mousedown", this.mousedownBackTitleButtonHandler, false);
             this.goBackTitleCallback();
         }
     }

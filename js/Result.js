@@ -12,7 +12,8 @@ class Result{
         this.alpha = 0.0;
         this.hasSetClickHandler = false;
 
-        this.clickHandler = this.clickEvent.bind(this);
+        this.touchHandler = this.touchEvent.bind(this);
+        this.mousedownHandler = this.mousedownEvent.bind(this);
     }
 
     show(score) {
@@ -62,7 +63,8 @@ class Result{
 
     dismiss() {
         changeScene("game");
-        this.canvas.removeEventListener("click", this.clickHandler, false);
+        this.canvas.removeEventListener("touchstart", this.touchHandler, false);
+        this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
     }
 
     draw(ctx) {
@@ -76,7 +78,8 @@ class Result{
             this.tweetButton.addPos(0, 2.5);
         } else {
             if (! this.hasSetClickHandler) {
-                this.canvas.addEventListener("click", this.clickHandler, false);
+                this.canvas.addEventListener("touchstart", this.touchHandler, false);
+                this.canvas.addEventListener("mousedown", this.mousedownHandler, false);
                 this.hasSetClickHandler = true;
             }
         }
@@ -115,18 +118,27 @@ class Result{
         ctx.globalAlpha = 1.0;
     }
 
-    clickEvent(event) {
+    touchEvent(event) {
         event.preventDefault();
-        console.log("prevent!");
+        console.log("prevent touchstart!");
+        this.clickEvent(event.touches[0].clientX, event.touches[0].clientY);
+    }
 
+    mousedownEvent(event) {
+        event.preventDefault();
+        console.log("prevent mousedown!");
+        this.clickEvent(event.clientX, event.clientY);
+    }
+
+    clickEvent(x, y) {
         if (scene != "result") {
             return;
         }
-        if (this.tweetButton.isContainedArea(event.clientX, event.clientY)) {
+        if (this.tweetButton.isContainedArea(x, y)) {
             this.tweet();
             return;
         }
-        if (this.closeButton.isContainedArea(event.clientX, event.clientY)) {
+        if (this.closeButton.isContainedArea(x, y)) {
             this.dismiss();
             return;
         }
