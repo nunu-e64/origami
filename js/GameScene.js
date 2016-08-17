@@ -29,7 +29,7 @@ class GameScene{
             this.result = new Result();
             console.log("Create Result");
         }
-        this.result.init(canvas, args["tweetButton"], args["resultBack"], args["closeButton"]);
+        this.result.init(canvas, args["tweetButton"], args["resultBack"], args["closeButton"], args["tweetBox"]);
 
         this.score = 0;
         this.text = "ゲームスタート"

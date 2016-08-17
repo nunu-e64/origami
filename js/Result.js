@@ -2,11 +2,12 @@ class Result{
     constructor() {
     }
 
-    init (canvas, tweetButton, resultBack, closeButton) {
+    init (canvas, tweetButton, resultBack, closeButton, tweetBox) {
         this.canvas = canvas;
         this.tweetButton = tweetButton;
         this.resultBack = resultBack;
         this.closeButton = closeButton;
+        this.tweetBox = new InputBox(tweetBox);
 
         this.filterAlpha = 0.0;
         this.alpha = 0.0;
@@ -26,6 +27,14 @@ class Result{
 
         this.tweetButton.setPos(this.resultBack.x + getCenterPostion(this.resultBack.width, this.tweetButton.width), this.resultBack.y + this.resultBack.height - this.tweetButton.height);
 
+        // this.tweetBox.top
+        var width = 360;
+        var height = 60;
+        this.tweetBox.setSize(360, 60);
+        this.tweetBox.setPos(getCenterPostion(WINDOW_WIDTH, width), this.resultBack.y + this.resultBack.height - 140);
+        this.tweetBox.setValue(this.getTweetText());
+
+        this.tweetBox.addPos(0, -50);
         this.resultBack.addPos(0, -50);
         this.closeButton.addPos(0, -50);
         this.tweetButton.addPos(0, -50);
@@ -65,6 +74,7 @@ class Result{
         changeScene("game");
         this.canvas.removeEventListener("touchstart", this.touchHandler, false);
         this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
+        this.tweetBox.hide();
     }
 
     draw(ctx) {
@@ -76,6 +86,8 @@ class Result{
             this.resultBack.addPos(0, 2.5);
             this.closeButton.addPos(0, 2.5);
             this.tweetButton.addPos(0, 2.5);
+            this.tweetBox.addPos(0, 2.5);
+            this.tweetBox.show();
         } else {
             if (! this.hasSetClickHandler) {
                 this.canvas.addEventListener("touchstart", this.touchHandler, false);
@@ -103,17 +115,17 @@ class Result{
 
         ctx.textAlign = "left";
         ctx.font = "italic 20px " + FONT_EN;
-        text = "Your Score ... "
+        text = "Your score"
         ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 80);
 
-        text = "Player Rank ... "
+        text = "Player rank"
         ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 130);
 
-        ctx.fillStyle = "rgb(255, 78, 83)";
+        ctx.fillStyle = "rgb(231, 48, 122)";
         ctx.font = "italic 32px " + FONT_EN;
 
-        ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 70);
-        ctx.fillText(this.rank, this.resultBack.x + 250, this.resultBack.y + 120);
+        ctx.fillText(this.score, this.resultBack.x + 240, this.resultBack.y + 70);
+        ctx.fillText(this.rank, this.resultBack.x + 240, this.resultBack.y + 120);
 
         ctx.globalAlpha = 1.0;
     }
@@ -135,7 +147,7 @@ class Result{
             return;
         }
         if (this.tweetButton.isContainedArea(x, y)) {
-            this.tweet();
+            this.tweet(this.tweetBox.getValue());
             return;
         }
         if (this.closeButton.isContainedArea(x, y)) {
@@ -144,12 +156,15 @@ class Result{
         }
     }
 
-    tweet() {
+    getTweetText() {
         var url = "http://www.test.com";
-        var hashtag = "testtag";
+        var hashtag = "#testtag";
         var text = "ミニゲーム挑戦結果！ スコア:"+this.score+"  ランク:" + this.rank;
-        var ref= "http://twitter.com/intent/tweet?url="
-　　　　　　　　+ url + "&text=" + text + "&hashtags=" + hashtag + "&";
+        return text + " " + url + " " + hashtag;
+    }
+
+    tweet(text) {
+        var ref= "http://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&";
         console.log(ref);
         window.open(ref);
     }

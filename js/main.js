@@ -4,6 +4,7 @@ importScript('js/Player.js');
 importScript('js/Word.js');
 importScript('js/Line.js');
 importScript('js/Result.js');
+importScript('js/inputBox.js');
 importScript('js/TitleScene.js');
 importScript('js/GameScene.js');
 
@@ -54,6 +55,7 @@ function importScript(src) {
     var tweetButton = null;
     var resultBack = null;
     var closeButton = null;
+    var tweetBox = null;
 
     // BGM
     var bgm = null;
@@ -113,6 +115,7 @@ function importScript(src) {
             "tweetButton" : tweetButton,
             "resultBack" : resultBack,
             "closeButton" : closeButton,
+            "tweetBox" : tweetBox,
         }
         gameScene.init(canvas, ctx, args);
 
@@ -124,9 +127,12 @@ function importScript(src) {
 
     function loadAssets() {
         //HTML ファイル上の canvas エレメントのインスタンスを取得
-        canvas = document.getElementById('bg');
+        canvas = document.getElementById('cav');
         canvas.width = WINDOW_WIDTH;
         canvas.height = WINDOW_HEIGHT;
+
+        tweetBox = document.getElementById('tweetbox');
+        tweetBox.style.display = "none";
 
         //2D コンテキストを取得
         ctx = canvas.getContext('2d');
