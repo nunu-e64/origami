@@ -16,8 +16,8 @@ reproduced or used in any manner whatsoever.
 var WINDOW_WIDTH = 640;
 var WINDOW_HEIGHT = 480;
 
-var PLAYER_FIRST_POS = 90;
-var PLAYER_MOVE_VALUE = 110;
+var PLAYER_FIRST_POS = 5;
+var PLAYER_MOVE_VALUE = 160;
 
 var LINE_NUM = 3;
 
@@ -65,6 +65,19 @@ function changeScene(nextScene) {
     console.log("Scene: " + scene + "->" + nextScene);
     scene = nextScene;
 }
+
+// ブラウザ対応音源拡張子取得
+var AUDIO_EXT = function () {
+    return "mp3";
+    // var ext     = "";
+    // var audio   = new Audio();
+    //
+    // if      (audio.canPlayType("audio/ogg") == 'maybe') { ext="ogg"; }
+    // else if (audio.canPlayType("audio/mp3") == 'maybe') { ext="mp3"; }
+    // else if (audio.canPlayType("audio/wav") == 'maybe') { ext="wav"; }
+    //
+    // return ext;
+}();
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -96,7 +109,7 @@ var GameScene = function () {
             this.backTitleButton = args["backTitle"];
 
             this.lines = [];
-            for (var i = 0; i < LINE_NUM + 1; i++) {
+            for (var i = 0; i < LINE_NUM - 1; i++) {
                 var line = new Line();
                 line.setImage(args["line"].image);
                 this.lines.push(line);
@@ -106,7 +119,7 @@ var GameScene = function () {
                 this.result = new Result();
                 console.log("Create Result");
             }
-            this.result.init(canvas, args["tweetButton"], args["resultBack"], args["closeButton"]);
+            this.result.init(canvas, args["tweetButton"], args["resultBack"], args["closeButton"], args["tweetBox"]);
 
             this.score = 0;
             this.text = "ゲームスタート";
@@ -115,13 +128,15 @@ var GameScene = function () {
             this.spawnInterval = SPAWN_FIRST_INTERVAL;
             this.correctWords = [];
             this.wrongWords = [];
+            this.lastWord = null;
 
             this.count = 0;
             this.buttonAlpha = 0;
 
             this.touchHandler = this.touchstartEvent.bind(this);
             this.mousedownHandler = this.mousedownEvent.bind(this);
-            this.clickBackTitleButtonHandler = this.goBackToTitle.bind(this);
+            this.touchBackTitleButtonHandler = this.touchBackToTitleEvent.bind(this);
+            this.mousedownBackTitleButtonHandler = this.mousedownBackToTitleEvent.bind(this);
         }
     }, {
         key: "show",
@@ -148,7 +163,7 @@ var GameScene = function () {
             this.line = [];
             for (var i = 0; i < this.lines.length; i++) {
                 this.lines[i].x = 0;
-                this.lines[i].y = PLAYER_FIRST_POS - this.lines[i].height + PLAYER_MOVE_VALUE * i;
+                this.lines[i].y = PLAYER_MOVE_VALUE * (i + 1) + i * 6;
             }
         }
     }, {
@@ -202,10 +217,12 @@ var GameScene = function () {
                     var word = new Word(true);
                     word.setImage(this.correctWordImage);
                     this.correctWords.push(word);
+                    console.log("Spawn Correct");
                 } else {
                     var word = new Word(false);
                     word.setImage(this.wrongWordImage);
                     this.wrongWords.push(word);
+                    console.log("Spawn Wrong");
                 }
             }
         }
@@ -298,6 +315,10 @@ var GameScene = function () {
                 this.wrongWords[i].draw(ctx);
             }
 
+            if (this.lastWord != null) {
+                this.lastWord.draw(ctx);
+            }
+
             if (!this.isPlaying && scene == "game") {
                 //ホバリングパターン
                 // var dy = Math.sin(this.count / 10) * 10;
@@ -328,6 +349,7 @@ var GameScene = function () {
             }
             for (var i = this.wrongWords.length - 1; i >= 0; i--) {
                 if (this.isHitWrongWord(this.player, this.wrongWords[i])) {
+                    this.lastWord = this.wrongWords[i];
                     this.wrongWords.splice(i, 1);
                     this.showGameOver();
                 }
@@ -346,11 +368,18 @@ var GameScene = function () {
     }, {
         key: "drawText",
         value: function drawText() {
-            this.ctx.textAlign = "center";
-            this.ctx.textBaseline = "bottom";
-            this.ctx.font = "32px " + FONT_EN;
-            this.ctx.fillStyle = "black";
-            this.ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
+            var ctx = this.ctx;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.font = "italic 32px " + FONT_EN;
+            ctx.fillStyle = "black";
+            ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
+
+            ctx.textAlign = "right";
+            ctx.textBaseline = "bottom";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+            ctx.font = "12px " + FONT_EN;
+            ctx.fillText("Sound by 煉獄庭園", WINDOW_WIDTH, WINDOW_HEIGHT);
         }
     }, {
         key: "showGameOver",
@@ -358,29 +387,101 @@ var GameScene = function () {
             this.isPlaying = false;
             this.canvas.removeEventListener("touchstart", this.touchHandler, false);
             this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
-            this.canvas.addEventListener("click", this.clickBackTitleButtonHandler, false);
+            this.canvas.addEventListener("touchstart", this.touchBackTitleButtonHandler, false);
+            this.canvas.addEventListener("mousedown", this.mousedownBackTitleButtonHandler, false);
 
             changeScene("result");
             this.result.show(this.score);
         }
     }, {
-        key: "goBackToTitle",
-        value: function goBackToTitle(event) {
+        key: "touchBackToTitleEvent",
+        value: function touchBackToTitleEvent(event) {
             event.preventDefault();
-            console.log("prevent!");
-
+            console.log("prevent touchstart!");
+            this.goBackToTitle(event.touches[0].clientX, event.touches[0].clientY);
+        }
+    }, {
+        key: "mousedownBackToTitleEvent",
+        value: function mousedownBackToTitleEvent(event) {
+            event.preventDefault();
+            console.log("prevent mousedown!");
+            this.goBackToTitle(event.clientX, event.clientY);
+        }
+    }, {
+        key: "goBackToTitle",
+        value: function goBackToTitle(x, y) {
             if (scene != "game" || this.isPlaying) {
                 return;
             }
-            if (this.backTitleButton.isContainedArea(event.clientX, event.clientY)) {
+            if (this.backTitleButton.isContainedArea(x, y)) {
                 window.cancelAnimationFrame(this.requestId); // ループ停止
-                this.canvas.removeEventListener("click", this.clickBackTitleButtonHandler, false);
+                this.canvas.removeEventListener("touchstart", this.touchBackTitleButtonHandler, false);
+                this.canvas.removeEventListener("mousedown", this.mousedownBackTitleButtonHandler, false);
                 this.goBackTitleCallback();
             }
         }
     }]);
 
     return GameScene;
+}();
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var InputBox = function () {
+    function InputBox(inputBox) {
+        _classCallCheck(this, InputBox);
+
+        this.inputBox = inputBox;
+    }
+
+    _createClass(InputBox, [{
+        key: "setSize",
+        value: function setSize(width, height) {
+            this.inputBox.style.width = width + "px";
+            this.inputBox.style.height = height + "px";
+        }
+    }, {
+        key: "setPos",
+        value: function setPos(x, y) {
+            this.inputBox.style.left = x + "px";
+            this.inputBox.style.top = -(WINDOW_HEIGHT - y) + "px";
+            this.x = x;
+            this.y = y;
+        }
+    }, {
+        key: "addPos",
+        value: function addPos(x, y) {
+            this.x += x;
+            this.y += y;
+            this.inputBox.style.left = this.x + "px";
+            this.inputBox.style.top = -(WINDOW_HEIGHT - this.y) + "px";
+        }
+    }, {
+        key: "setValue",
+        value: function setValue(value) {
+            this.inputBox.value = value;
+        }
+    }, {
+        key: "getValue",
+        value: function getValue() {
+            return this.inputBox.value;
+        }
+    }, {
+        key: "show",
+        value: function show() {
+            this.inputBox.style.display = "inline";
+        }
+    }, {
+        key: "hide",
+        value: function hide() {
+            this.inputBox.style.display = "none";
+        }
+    }]);
+
+    return InputBox;
 }();
 "use strict";
 
@@ -521,17 +622,19 @@ var Result = function () {
 
     _createClass(Result, [{
         key: "init",
-        value: function init(canvas, tweetButton, resultBack, closeButton) {
+        value: function init(canvas, tweetButton, resultBack, closeButton, tweetBox) {
             this.canvas = canvas;
             this.tweetButton = tweetButton;
             this.resultBack = resultBack;
             this.closeButton = closeButton;
+            this.tweetBox = new InputBox(tweetBox);
 
             this.filterAlpha = 0.0;
             this.alpha = 0.0;
             this.hasSetClickHandler = false;
 
-            this.clickHandler = this.clickEvent.bind(this);
+            this.touchHandler = this.touchEvent.bind(this);
+            this.mousedownHandler = this.mousedownEvent.bind(this);
         }
     }, {
         key: "show",
@@ -541,10 +644,18 @@ var Result = function () {
 
             this.resultBack.setPos(getCenterPostion(WINDOW_WIDTH, this.resultBack.width), getCenterPostion(WINDOW_HEIGHT, this.resultBack.height));
 
-            this.closeButton.setPos(this.resultBack.x + this.resultBack.width - this.closeButton.width / 2, this.resultBack.y - this.closeButton.height / 2);
+            this.closeButton.setPos(this.resultBack.x - 10 + this.resultBack.width - this.closeButton.width / 2, this.resultBack.y + 10 - this.closeButton.height / 2);
 
             this.tweetButton.setPos(this.resultBack.x + getCenterPostion(this.resultBack.width, this.tweetButton.width), this.resultBack.y + this.resultBack.height - this.tweetButton.height);
 
+            // this.tweetBox.top
+            var width = 360;
+            var height = 60;
+            this.tweetBox.setSize(360, 60);
+            this.tweetBox.setPos(getCenterPostion(WINDOW_WIDTH, width), this.resultBack.y + this.resultBack.height - 140);
+            this.tweetBox.setValue(this.getTweetText());
+
+            this.tweetBox.addPos(0, -50);
             this.resultBack.addPos(0, -50);
             this.closeButton.addPos(0, -50);
             this.tweetButton.addPos(0, -50);
@@ -554,9 +665,9 @@ var Result = function () {
         value: function getRank(score) {
             if (score >= 100) {
                 return "SSS";
-            } else if (score >= 80) {
-                return "SS";
             } else if (score >= 50) {
+                return "SS";
+            } else if (score >= 40) {
                 return "S";
             } else if (score >= 35) {
                 return "A++";
@@ -571,6 +682,10 @@ var Result = function () {
             } else if (score >= 10) {
                 return "B";
             } else if (score >= 5) {
+                return "C++";
+            } else if (score >= 3) {
+                return "C+";
+            } else if (score >= 1) {
                 return "C";
             } else {
                 return "D";
@@ -580,7 +695,9 @@ var Result = function () {
         key: "dismiss",
         value: function dismiss() {
             changeScene("game");
-            this.canvas.removeEventListener("click", this.clickHandler, false);
+            this.canvas.removeEventListener("touchstart", this.touchHandler, false);
+            this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
+            this.tweetBox.hide();
         }
     }, {
         key: "draw",
@@ -593,9 +710,12 @@ var Result = function () {
                 this.resultBack.addPos(0, 2.5);
                 this.closeButton.addPos(0, 2.5);
                 this.tweetButton.addPos(0, 2.5);
+                this.tweetBox.addPos(0, 2.5);
+                this.tweetBox.show();
             } else {
                 if (!this.hasSetClickHandler) {
-                    this.canvas.addEventListener("click", this.clickHandler, false);
+                    this.canvas.addEventListener("touchstart", this.touchHandler, false);
+                    this.canvas.addEventListener("mousedown", this.mousedownHandler, false);
                     this.hasSetClickHandler = true;
                 }
             }
@@ -612,57 +732,68 @@ var Result = function () {
             ctx.textBaseline = "top";
             ctx.textAlign = "center";
             var text = "GAME OVER";
-            ctx.font = "28px " + FONT_EN;
+            ctx.font = "italic 28px " + FONT_EN;
             ctx.fillStyle = "black";
 
             ctx.fillText(text, this.resultBack.x + this.resultBack.width / 2, this.resultBack.y + 20);
 
             ctx.textAlign = "left";
-            ctx.font = "20px " + FONT_EN;
-            text = "Your Score is";
+            ctx.font = "italic 20px " + FONT_EN;
+            text = "Your score";
             ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 80);
 
-            text = "Your Rank is";
+            text = "Player rank";
             ctx.fillText(text, this.resultBack.x + 100, this.resultBack.y + 130);
 
-            ctx.fillStyle = "rgb(255, 255, 255)"; //"rgb(255, 78, 83)";
-            ctx.font = "32px " + FONT_EN;
+            ctx.fillStyle = "rgb(231, 48, 122)";
+            ctx.font = "italic 32px " + FONT_EN;
 
-            ctx.fillText(this.score, this.resultBack.x + 250, this.resultBack.y + 70);
-
+            ctx.fillText(this.score, this.resultBack.x + 240, this.resultBack.y + 70);
             ctx.fillText(this.rank, this.resultBack.x + 240, this.resultBack.y + 120);
 
             ctx.globalAlpha = 1.0;
         }
     }, {
-        key: "clickEvent",
-        value: function clickEvent(event) {
+        key: "touchEvent",
+        value: function touchEvent(event) {
             event.preventDefault();
-            console.log("prevent!");
-
+            console.log("prevent touchstart!");
+            this.clickEvent(event.touches[0].clientX, event.touches[0].clientY);
+        }
+    }, {
+        key: "mousedownEvent",
+        value: function mousedownEvent(event) {
+            event.preventDefault();
+            console.log("prevent mousedown!");
+            this.clickEvent(event.clientX, event.clientY);
+        }
+    }, {
+        key: "clickEvent",
+        value: function clickEvent(x, y) {
             if (scene != "result") {
                 return;
             }
-            if (this.tweetButton.isContainedArea(event.clientX, event.clientY)) {
-                this.tweet();
+            if (this.tweetButton.isContainedArea(x, y)) {
+                this.tweet(this.tweetBox.getValue());
                 return;
             }
-            if (this.closeButton.isContainedArea(event.clientX, event.clientY)) {
-                this.dismiss();
-                return;
-            }
-            if (!this.resultBack.isContainedArea(event.clientX, event.clientY)) {
+            if (this.closeButton.isContainedArea(x, y)) {
                 this.dismiss();
                 return;
             }
         }
     }, {
-        key: "tweet",
-        value: function tweet() {
+        key: "getTweetText",
+        value: function getTweetText() {
             var url = "http://www.test.com";
-            var hashtag = "testtag";
+            var hashtag = "#testtag";
             var text = "ミニゲーム挑戦結果！ スコア:" + this.score + "  ランク:" + this.rank;
-            var ref = "http://twitter.com/intent/tweet?url=" + url + "&text=" + text + "&hashtags=" + hashtag + "&";
+            return text + " " + url + " " + hashtag;
+        }
+    }, {
+        key: "tweet",
+        value: function tweet(text) {
+            var ref = "http://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&";
             console.log(ref);
             window.open(ref);
         }
@@ -697,7 +828,8 @@ var TitleScene = function () {
             this.back = args["back"];
 
             this.hasStarted = false;
-            this.clickHandler = this.clickEvent.bind(this);
+            this.touchHandler = this.touchEvent.bind(this);
+            this.mousedownHandler = this.mousedownEvent.bind(this);
         }
     }, {
         key: "show",
@@ -739,28 +871,41 @@ var TitleScene = function () {
     }, {
         key: "setHandlers",
         value: function setHandlers() {
-            this.canvas.addEventListener("click", this.clickHandler, false);
+            this.canvas.addEventListener("touchstart", this.touchHandler, false);
+            this.canvas.addEventListener("mousedown", this.mousedownHandler, false);
+        }
+    }, {
+        key: "touchEvent",
+        value: function touchEvent(event) {
+            event.preventDefault();
+            console.log("prevent touchstart!");
+            this.clickEvent(event.touches[0].clientX, event.touches[0].clientY);
+        }
+    }, {
+        key: "mousedownEvent",
+        value: function mousedownEvent(event) {
+            event.preventDefault();
+            console.log("prevent mousedown!");
+            this.clickEvent(event.clientX, event.clientY);
         }
     }, {
         key: "clickEvent",
-        value: function clickEvent(event) {
-            event.preventDefault();
-            console.log("prevent!");
-
+        value: function clickEvent(x, y) {
             //キャラを選択した時に
-            var self = this;
-            if (self.hasStarted || scene != "title") {
+            if (this.hasStarted || scene != "title") {
                 return;
             }
-            if (self.titlePlayer0.isContainedArea(event.clientX, event.clientY)) {
-                self.canvas.removeEventListener("click", this.clickHandler, false);
-                self.hasStarted = true;
-                self.gameStartCallback(0);
+            if (this.titlePlayer0.isContainedArea(x, y)) {
+                this.canvas.removeEventListener("touchstart", this.touchHandler, false);
+                this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
+                this.hasStarted = true;
+                this.gameStartCallback(0);
             }
-            if (self.titlePlayer1.isContainedArea(event.clientX, event.clientY)) {
-                self.canvas.removeEventListener("click", this.clickHandler, false);
-                self.hasStarted = true;
-                self.gameStartCallback(1);
+            if (this.titlePlayer1.isContainedArea(x, y)) {
+                this.canvas.removeEventListener("touchstart", this.touchHandler, false);
+                this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
+                this.hasStarted = true;
+                this.gameStartCallback(1);
             }
         }
     }]);
@@ -778,7 +923,6 @@ var Word = function () {
         _classCallCheck(this, Word);
 
         this.isCorrect = isCorrect;
-        this.reset();
     }
 
     _createClass(Word, [{
@@ -787,12 +931,13 @@ var Word = function () {
             this.image = img;
             this.width = this.image.width;
             this.height = this.image.height;
+            this.reset();
         }
     }, {
         key: "reset",
         value: function reset() {
             this.x = WINDOW_WIDTH;
-            this.y = Math.floor(Math.random() * WINDOW_HEIGHT);
+            this.y = Math.floor(Math.random() * (WINDOW_HEIGHT + this.height)) - this.height;
             this.speed = Math.random() * (maxSpeed - MIN_SPEED) + MIN_SPEED;
         }
     }, {
@@ -825,6 +970,7 @@ var Word = function () {
 //importScript('js/Word.js');
 //importScript('js/Line.js');
 //importScript('js/Result.js');
+//importScript('js/inputBox.js');
 //importScript('js/TitleScene.js');
 //importScript('js/GameScene.js');
 
@@ -869,6 +1015,10 @@ function importScript(src) {
     var tweetButton = null;
     var resultBack = null;
     var closeButton = null;
+    var tweetBox = null;
+
+    // BGM
+    var bgm = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
@@ -926,7 +1076,8 @@ function importScript(src) {
             "line": line,
             "tweetButton": tweetButton,
             "resultBack": resultBack,
-            "closeButton": closeButton
+            "closeButton": closeButton,
+            "tweetBox": tweetBox
         };
         gameScene.init(canvas, ctx, args);
 
@@ -940,9 +1091,12 @@ function importScript(src) {
 
     function loadAssets() {
         //HTML ファイル上の canvas エレメントのインスタンスを取得
-        canvas = document.getElementById('bg');
+        canvas = document.getElementById('cav');
         canvas.width = WINDOW_WIDTH;
         canvas.height = WINDOW_HEIGHT;
+
+        tweetBox = document.getElementById('tweetbox');
+        tweetBox.style.display = "none";
 
         //2D コンテキストを取得
         ctx = canvas.getContext('2d');
@@ -953,6 +1107,12 @@ function importScript(src) {
 
         // デバイスのイベント阻害
         // canvas.addEventListener("click", clickPreventHandler);
+
+        // 音楽
+        bgm = new Audio("music/bgm." + AUDIO_EXT);
+        bgm.loop = true;
+        bgm.volume = 1.0;
+        bgm.play();
 
         // 背景
         back = new MyImage("images/background.png");
