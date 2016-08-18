@@ -1,10 +1,18 @@
 class MyImage {
     constructor(src) {
-        this.image = new Image();
-        this.image.src = src;
+        if (src != undefined) {
+            this.image = new Image();
+            this.image.src = src;
+            this.onload(function(){});  //外部からonloadがセットされなかった時にwidth/heightを取得しておくために実行
+        }
         this.x = 0;
         this.y = 0;
-        this.onload(function(){});  //外部からonloadがセットされなかった時にwidth/heightを取得しておくために実行
+    }
+
+    setImage(img) {
+        this.image = img;
+        this.width = this.image.width;
+        this.height = this.image.height;
     }
 
     setPos(x, y) {
@@ -22,13 +30,13 @@ class MyImage {
     }
 
     onload(func) {
-    var self = this;
-    var onloadfunc = function(){
-        func();
-        self.width = self.image.width;
-        self.height = self.image.height;
-    }
-    this.image.onload = onloadfunc;
+        var self = this;
+        var onloadfunc = function(){
+            func();
+            self.width = self.image.width;
+            self.height = self.image.height;
+        }
+        this.image.onload = onloadfunc;
     }
 
     isContainedArea(x, y) {

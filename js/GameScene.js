@@ -142,7 +142,6 @@ class GameScene{
 
         // フレーム測定
         this.currentTime = getTime();
-        // console.log(this.currentTime - this.startTime);
 
         //canvas をクリア
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

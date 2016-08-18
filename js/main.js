@@ -92,6 +92,7 @@ function importScript(src) {
             "titleLogo" : titleLogo,
             "titlePlayer0" : titlePlayer0,
             "titlePlayer1" : titlePlayer1,
+            "marker" : marker,
         }
         titleScene.init(canvas, ctx, args);
         titleScene.setGameStartCallback(function(index){showGameScene(index);});
@@ -141,9 +142,6 @@ function importScript(src) {
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
 
-        // デバイスのイベント阻害
-        // canvas.addEventListener("click", clickPreventHandler);
-
         // 音楽
         bgm = new Audio("music/bgm." + AUDIO_EXT);
         bgm.loop = true;
@@ -176,6 +174,11 @@ function importScript(src) {
             function () { finishLoadAsset();}
         );
 
+        marker = new MyImage("images/marker.png");
+        beginLoadAsset();
+        marker.onload (
+            function () { finishLoadAsset();}
+        );
 
         //ゲームシーン
         player0 = new Player('images/player0.png');
