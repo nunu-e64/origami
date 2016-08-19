@@ -1,0 +1,36 @@
+.editbox {
+    position:absolute;
+    z-index:1;
+    /*font-size:20pt;
+    color:#47474f;
+    background-color:#b2e2ff;
+    top:50%;
+    left:50%;
+    width:180px;
+    height:80px;
+    margin: -40px 0px 0px -90px;
+    border: 4px dotted #dff2ff;
+    border-radius: 10px;*/
+}
+
+canvas {
+    border:solid 1px #AAAAAA;
+}
+
+div {
+    position:absolute;
+}
+
+.CanvasArea {
+    /*
+    top:50%;
+    left:50%;
+    width:320px;
+    height:200px;
+    margin: -100px 0px 0px -160px;*/
+    z-index:0;
+}
+
+.EditArea {
+    z-index:1;
+}

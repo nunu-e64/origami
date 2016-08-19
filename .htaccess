@@ -1,0 +1,4 @@
+<Directory "/home/hogera/www/origami/production">
+    Order allow,deny
+    Allow from all
+</Directory>
