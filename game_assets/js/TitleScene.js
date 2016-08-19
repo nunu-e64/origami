@@ -23,6 +23,8 @@ class TitleScene {
         this.mousedownHandler = this.mousedownEvent.bind(this);
 
         this.count = 0;
+        this.titleLogoAlpha = 0;
+        this.titleMessageAlpha = 0;
     }
 
     show () {
@@ -49,6 +51,9 @@ class TitleScene {
         if (this.count <= 40) {
             this.titleLogoAlpha = this.count / 40;
             this.titleLogo.addPos(0, 50 / 40);
+        } else if (this.count <= 60) {
+            this.titleMessageAlpha = (this.count-40) / 20;
+            this.titleMessage.addPos(0, 20/20);
         }
 
         this.count++;
@@ -63,14 +68,15 @@ class TitleScene {
 
         ctx.globalAlpha = this.titleLogoAlpha;
         this.titleLogo.draw(ctx);
+
+        ctx.globalAlpha = this.titleMessageAlpha;
+        this.titleMessage.draw(ctx);
+
         ctx.globalAlpha = 1;
 
         this.titlePlayer0.draw(ctx);
         this.titlePlayer1.draw(ctx);
 
-        if (this.count >= 40) {
-            this.titleMessage.draw(ctx);
-        }
     }
 
     drawText() {
@@ -86,14 +92,15 @@ class TitleScene {
         this.titleLogo.x = getCenterPosition(WINDOW_WIDTH, this.titleLogo.width);
         this.titleLogo.y = 50;
 
-        this.titlePlayer0.x = 200;
+        this.titlePlayer0.x = 150;
         this.titlePlayer0.y = 250;
 
-        this.titlePlayer1.x = WINDOW_WIDTH - 200 - this.titlePlayer1.width;
+        this.titlePlayer1.x = WINDOW_WIDTH - 150 - this.titlePlayer1.width;
         this.titlePlayer1.y = 250;
 
         this.titleMessage.x = getCenterPosition(WINDOW_WIDTH, this.titleMessage.width);
         this.titleMessage.y = this.titlePlayer0.y + getCenterPosition(this.titlePlayer0.height, this.titleMessage.height);
+        this.titleMessage.addPos(0, -20);
 
         console.log("setup title");
     }

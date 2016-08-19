@@ -17,6 +17,8 @@ class GameScene{
         this.correctWordImage = args["correctWord"].image;
         this.wrongWordImage = args["wrongWord"].image;
         this.backTitleButton = args["backTitle"];
+        this.explain = args["explain"];
+        this.gameStartButton = args["gameStartButton"];
 
         this.lines = [];
         for (var i = 0; i < LINE_NUM - 1; i++) {
@@ -47,6 +49,14 @@ class GameScene{
         this.mousedownHandler = this.mousedownEvent.bind(this);
         this.touchBackTitleButtonHandler = this.touchBackToTitleEvent.bind(this);
         this.mousedownBackTitleButtonHandler = this.mousedownBackToTitleEvent.bind(this);
+    }
+
+    showExplain() {
+        changeScene("explain");
+        this.explain.x = getCenterPosition(WINDOW_WIDTH, this.explain.width);
+        this.explain.y = getCenterPosition(WINDOW_HEIGHT, this.explain.height);
+        this.gameStartButton.x = getCenterPosition(WINDOW_WIDTH, this.gameStartButton.width);
+        this.gameStartButton.y = getCenterPosition(WINDOW_HEIGHT, this.gameStartButton.height);
     }
 
     show(playerIndex) {
