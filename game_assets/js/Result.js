@@ -167,6 +167,8 @@ class Result{
     tweet(text) {
         var ref= "http://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&";
         console.log(ref);
-        window.open(ref);
+        if (!window.open(ref)) {
+            location.href = ref;
+        }
     }
 }
