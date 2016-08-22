@@ -157,10 +157,11 @@ class Result{
     }
 
     getTweetText() {
-        var url = "http://www.test.com";
-        var hashtag = "#testtag";
-        var text = "ミニゲーム挑戦結果！ スコア:"+this.score+"  ランク:" + this.rank;
+        var url = "http://www.anderlust.jp/game";
+        var hashtag = "#justanderlust";
+        var text = "just anderlust ゲーム挑戦結果！スコア："+this.score+" ランク：" + this.rank;
         return text + " " + url + " " + hashtag;
+        //just anderlust ゲーム挑戦結果！スコア：〇〇 ランク：〇〇 http://www.anderlust.jp/game #justanderlust
     }
 
     tweet(text) {
