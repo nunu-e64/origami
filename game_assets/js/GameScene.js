@@ -56,7 +56,7 @@ class GameScene{
         this.explain.x = getCenterPosition(WINDOW_WIDTH, this.explain.width);
         this.explain.y = getCenterPosition(WINDOW_HEIGHT, this.explain.height);
         this.gameStartButton.x = getCenterPosition(WINDOW_WIDTH, this.gameStartButton.width);
-        this.gameStartButton.y = getCenterPosition(WINDOW_HEIGHT, this.gameStartButton.height);
+        this.gameStartButton.y = getCenterPosition(WINDOW_HEIGHT, this.gameStartButton.height) + 200;;
     }
 
     show(playerIndex) {
@@ -66,6 +66,20 @@ class GameScene{
         this.setUpLayout();
         this.setHandlers();
 
+        if (scene == "explain") {
+            this.showExplain();
+        } else {
+            this.gameStart();
+        }
+
+        // ゲームスタート
+        this.startTime = getTime();
+        this.lastSpawnTime = this.startTime;
+        this.renderFrame();
+
+    }
+
+    gameStart() {
         // ゲームスタート
         this.startTime = getTime();
         this.lastSpawnTime = this.startTime;
@@ -141,7 +155,12 @@ class GameScene{
     }
 
     renderFrame() {
-        if (scene != "game" && scene != "result") {
+        if (scene != "game" && scene != "result" && scene != "explain") {
+            return;
+        }
+
+        if (scene == "explain") {
+            this.draw();
             return;
         }
 
@@ -244,6 +263,11 @@ class GameScene{
             ctx.globalAlpha = this.buttonAlpha;
             this.backTitleButton.draw(ctx);
             ctx.globalAlpha = 1.0;
+        }
+
+        if (scene == "explain") {
+            this.explain.draw(ctx);
+            this.gameStartButton.draw(ctx);
         }
     }
 
