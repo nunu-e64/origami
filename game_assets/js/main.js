@@ -56,6 +56,7 @@ function importScript(src) {
     var resultBack = null;
     var closeButton = null;
     var tweetBox = null;
+    var titleMessage = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {

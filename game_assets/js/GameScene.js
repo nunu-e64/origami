@@ -271,12 +271,6 @@ class GameScene{
         ctx.font = "italic 32px " + FONT_EN;
         ctx.fillStyle = "black";
         ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
-
-        ctx.textAlign = "right";
-        ctx.textBaseline = "bottom";
-        ctx.fillStyle = "rgba(0, 0, 0, 0.3)"
-        ctx.font = "12px " + FONT_EN;
-        ctx.fillText("Sound by 煉獄庭園", WINDOW_WIDTH, WINDOW_HEIGHT);
     }
 
     showGameOver() {
