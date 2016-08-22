@@ -41,7 +41,7 @@ var maxSpeed = FIRST_MAX_SPEED;
 
 // Global Function ////
 //中央に配置する画像の X 座標を求める関数
-function getCenterPostion(containerWidth, itemWidth) {
+function getCenterPosition(containerWidth, itemWidth) {
     return containerWidth / 2 - itemWidth / 2;
 };
 
@@ -65,19 +65,6 @@ function changeScene(nextScene) {
     console.log("Scene: " + scene + "->" + nextScene);
     scene = nextScene;
 }
-
-// ブラウザ対応音源拡張子取得
-var AUDIO_EXT = function () {
-    return "mp3";
-    // var ext     = "";
-    // var audio   = new Audio();
-    //
-    // if      (audio.canPlayType("audio/ogg") == 'maybe') { ext="ogg"; }
-    // else if (audio.canPlayType("audio/mp3") == 'maybe') { ext="mp3"; }
-    // else if (audio.canPlayType("audio/wav") == 'maybe') { ext="wav"; }
-    //
-    // return ext;
-}();
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -156,9 +143,9 @@ var GameScene = function () {
         key: "setUpLayout",
         value: function setUpLayout() {
             this.player.setFirstPosition(50, PLAYER_FIRST_POS);
-            this.backTitleButton.x = getCenterPostion(WINDOW_WIDTH, this.backTitleButton.width);
+            this.backTitleButton.x = getCenterPosition(WINDOW_WIDTH, this.backTitleButton.width);
             // this.backTitleButton.y = WINDOW_HEIGHT - this.backTitleButton.height - 20;
-            this.backTitleButton.y = getCenterPostion(WINDOW_HEIGHT, this.backTitleButton.height);
+            this.backTitleButton.y = getCenterPosition(WINDOW_HEIGHT, this.backTitleButton.height);
 
             this.line = [];
             for (var i = 0; i < this.lines.length; i++) {
@@ -240,7 +227,6 @@ var GameScene = function () {
 
             // フレーム測定
             this.currentTime = getTime();
-            // console.log(this.currentTime - this.startTime);
 
             //canvas をクリア
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -374,12 +360,6 @@ var GameScene = function () {
             ctx.font = "italic 32px " + FONT_EN;
             ctx.fillStyle = "black";
             ctx.fillText(this.text, WINDOW_WIDTH / 2, 50);
-
-            ctx.textAlign = "right";
-            ctx.textBaseline = "bottom";
-            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-            ctx.font = "12px " + FONT_EN;
-            ctx.fillText("Sound by 煉獄庭園", WINDOW_WIDTH, WINDOW_HEIGHT);
         }
     }, {
         key: "showGameOver",
@@ -523,14 +503,23 @@ var MyImage = function () {
     function MyImage(src) {
         _classCallCheck(this, MyImage);
 
-        this.image = new Image();
-        this.image.src = src;
+        if (src != undefined) {
+            this.image = new Image();
+            this.image.src = src;
+            this.onload(function () {}); //外部からonloadがセットされなかった時にwidth/heightを取得しておくために実行
+        }
         this.x = 0;
         this.y = 0;
-        this.onload(function () {}); //外部からonloadがセットされなかった時にwidth/heightを取得しておくために実行
     }
 
     _createClass(MyImage, [{
+        key: "setImage",
+        value: function setImage(img) {
+            this.image = img;
+            this.width = this.image.width;
+            this.height = this.image.height;
+        }
+    }, {
         key: "setPos",
         value: function setPos(x, y) {
             this.x = x;
@@ -642,17 +631,17 @@ var Result = function () {
             this.score = score;
             this.rank = this.getRank(score);
 
-            this.resultBack.setPos(getCenterPostion(WINDOW_WIDTH, this.resultBack.width), getCenterPostion(WINDOW_HEIGHT, this.resultBack.height));
+            this.resultBack.setPos(getCenterPosition(WINDOW_WIDTH, this.resultBack.width), getCenterPosition(WINDOW_HEIGHT, this.resultBack.height));
 
             this.closeButton.setPos(this.resultBack.x - 10 + this.resultBack.width - this.closeButton.width / 2, this.resultBack.y + 10 - this.closeButton.height / 2);
 
-            this.tweetButton.setPos(this.resultBack.x + getCenterPostion(this.resultBack.width, this.tweetButton.width), this.resultBack.y + this.resultBack.height - this.tweetButton.height);
+            this.tweetButton.setPos(this.resultBack.x + getCenterPosition(this.resultBack.width, this.tweetButton.width), this.resultBack.y + this.resultBack.height - this.tweetButton.height);
 
             // this.tweetBox.top
             var width = 360;
             var height = 60;
             this.tweetBox.setSize(360, 60);
-            this.tweetBox.setPos(getCenterPostion(WINDOW_WIDTH, width), this.resultBack.y + this.resultBack.height - 140);
+            this.tweetBox.setPos(getCenterPosition(WINDOW_WIDTH, width), this.resultBack.y + this.resultBack.height - 140);
             this.tweetBox.setValue(this.getTweetText());
 
             this.tweetBox.addPos(0, -50);
@@ -785,17 +774,20 @@ var Result = function () {
     }, {
         key: "getTweetText",
         value: function getTweetText() {
-            var url = "http://www.test.com";
-            var hashtag = "#testtag";
-            var text = "ミニゲーム挑戦結果！ スコア:" + this.score + "  ランク:" + this.rank;
+            var url = "http://www.anderlust.jp/game";
+            var hashtag = "#justanderlust";
+            var text = "just anderlust ゲーム挑戦結果！スコア：" + this.score + " ランク：" + this.rank;
             return text + " " + url + " " + hashtag;
+            //just anderlust ゲーム挑戦結果！スコア：〇〇 ランク：〇〇 http://www.anderlust.jp/game #justanderlust
         }
     }, {
         key: "tweet",
         value: function tweet(text) {
             var ref = "http://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&";
             console.log(ref);
-            window.open(ref);
+            if (!window.open(ref)) {
+                location.href = ref;
+            }
         }
     }]);
 
@@ -810,6 +802,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var TitleScene = function () {
     function TitleScene() {
         _classCallCheck(this, TitleScene);
+
+        this.requestId = null;
     }
 
     _createClass(TitleScene, [{
@@ -826,10 +820,15 @@ var TitleScene = function () {
             this.titlePlayer0 = args["titlePlayer0"];
             this.titlePlayer1 = args["titlePlayer1"];
             this.back = args["back"];
+            this.titleMessage = args["titleMessage"];
 
             this.hasStarted = false;
             this.touchHandler = this.touchEvent.bind(this);
             this.mousedownHandler = this.mousedownEvent.bind(this);
+
+            this.count = 0;
+            this.titleLogoAlpha = 0;
+            this.titleMessageAlpha = 0;
         }
     }, {
         key: "show",
@@ -839,34 +838,79 @@ var TitleScene = function () {
 
             // タップイベント設定
             this.setHandlers();
+
+            this.renderFrame();
         }
     }, {
-        key: "setUpLayout",
-        value: function setUpLayout() {
+        key: "renderFrame",
+        value: function renderFrame() {
+            if (scene != "title") {
+                return;
+            }
+            console.log("render");
+            //ループを開始
+            this.requestId = window.requestAnimationFrame(this.renderFrame.bind(this));
+
+            if (this.count > 100) {
+                window.cancelAnimationFrame(this.requestId); // ループ停止
+            }
+            if (this.count <= 40) {
+                this.titleLogoAlpha = this.count / 40;
+                this.titleLogo.addPos(0, 50 / 40);
+            } else if (this.count <= 60) {
+                this.titleMessageAlpha = (this.count - 40) / 20;
+                this.titleMessage.addPos(0, 20 / 20);
+            }
+
+            this.count++;
+
+            this.draw();
+            this.drawText();
+        }
+    }, {
+        key: "draw",
+        value: function draw() {
             var ctx = this.ctx;
+            this.back.draw(ctx);
 
-            this.titleLogo;
-            this.back.draw(this.ctx);
-
-            this.titleLogo.x = getCenterPostion(WINDOW_WIDTH, this.titleLogo.width);
-            this.titleLogo.y = 100;
+            ctx.globalAlpha = this.titleLogoAlpha;
             this.titleLogo.draw(ctx);
 
-            this.titlePlayer0.x = 200;
-            this.titlePlayer0.y = 250;
+            ctx.globalAlpha = this.titleMessageAlpha;
+            this.titleMessage.draw(ctx);
+
+            ctx.globalAlpha = 1;
+
             this.titlePlayer0.draw(ctx);
-
-            this.titlePlayer1.x = WINDOW_WIDTH - 200 - this.titlePlayer1.width;
-            this.titlePlayer1.y = 250;
             this.titlePlayer1.draw(ctx);
-
+        }
+    }, {
+        key: "drawText",
+        value: function drawText() {
+            var ctx = this.ctx;
             ctx.textAlign = "right";
             ctx.textBaseline = "bottom";
             ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
             ctx.font = "12px " + FONT_EN;
             ctx.fillText("Created by nunu-e64", WINDOW_WIDTH, WINDOW_HEIGHT);
+        }
+    }, {
+        key: "setUpLayout",
+        value: function setUpLayout() {
+            this.titleLogo.x = getCenterPosition(WINDOW_WIDTH, this.titleLogo.width);
+            this.titleLogo.y = 50;
 
-            console.log("show titleLogo");
+            this.titlePlayer0.x = 150;
+            this.titlePlayer0.y = 250;
+
+            this.titlePlayer1.x = WINDOW_WIDTH - 150 - this.titlePlayer1.width;
+            this.titlePlayer1.y = 250;
+
+            this.titleMessage.x = getCenterPosition(WINDOW_WIDTH, this.titleMessage.width);
+            this.titleMessage.y = this.titlePlayer0.y + getCenterPosition(this.titlePlayer0.height, this.titleMessage.height);
+            this.titleMessage.addPos(0, -20);
+
+            console.log("setup title");
         }
     }, {
         key: "setHandlers",
@@ -895,17 +939,20 @@ var TitleScene = function () {
             if (this.hasStarted || scene != "title") {
                 return;
             }
+            var gameStart = -1;
             if (this.titlePlayer0.isContainedArea(x, y)) {
-                this.canvas.removeEventListener("touchstart", this.touchHandler, false);
-                this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
-                this.hasStarted = true;
-                this.gameStartCallback(0);
+                gameStart = 0;
             }
             if (this.titlePlayer1.isContainedArea(x, y)) {
+                gameStart = 1;
+            }
+
+            if (gameStart != -1) {
                 this.canvas.removeEventListener("touchstart", this.touchHandler, false);
                 this.canvas.removeEventListener("mousedown", this.mousedownHandler, false);
                 this.hasStarted = true;
-                this.gameStartCallback(1);
+                window.cancelAnimationFrame(this.requestId); // ループ停止
+                this.gameStartCallback(gameStart);
             }
         }
     }]);
@@ -964,15 +1011,15 @@ var Word = function () {
 }();
 'use strict';
 
-//importScript('js/Constants.js');
-//importScript('js/MyImage.js');
-//importScript('js/Player.js');
-//importScript('js/Word.js');
-//importScript('js/Line.js');
-//importScript('js/Result.js');
-//importScript('js/inputBox.js');
-//importScript('js/TitleScene.js');
-//importScript('js/GameScene.js');
+//importScript('game_assets/js/Constants.js');
+//importScript('game_assets/js/MyImage.js');
+//importScript('game_assets/js/Player.js');
+//importScript('game_assets/js/Word.js');
+//importScript('game_assets/js/Line.js');
+//importScript('game_assets/js/Result.js');
+//importScript('game_assets/js/inputBox.js');
+//importScript('game_assets/js/TitleScene.js');
+//importScript('game_assets/js/GameScene.js');
 
 // 外部スクリプトの読み込み
 function importScript(src) {
@@ -1016,9 +1063,7 @@ function importScript(src) {
     var resultBack = null;
     var closeButton = null;
     var tweetBox = null;
-
-    // BGM
-    var bgm = null;
+    var titleMessage = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
@@ -1051,7 +1096,8 @@ function importScript(src) {
             "back": back,
             "titleLogo": titleLogo,
             "titlePlayer0": titlePlayer0,
-            "titlePlayer1": titlePlayer1
+            "titlePlayer1": titlePlayer1,
+            "titleMessage": titleMessage
         };
         titleScene.init(canvas, ctx, args);
         titleScene.setGameStartCallback(function (index) {
@@ -1105,15 +1151,6 @@ function importScript(src) {
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
 
-        // デバイスのイベント阻害
-        // canvas.addEventListener("click", clickPreventHandler);
-
-        // 音楽
-        bgm = new Audio("game_assets/music/bgm." + AUDIO_EXT);
-        bgm.loop = true;
-        bgm.volume = 1.0;
-        bgm.play();
-
         // 背景
         back = new MyImage("game_assets/images/background.png");
         beginLoadAsset();
@@ -1137,6 +1174,12 @@ function importScript(src) {
         titlePlayer1 = new MyImage("game_assets/images/title_player1.png");
         beginLoadAsset();
         titlePlayer1.onload(function () {
+            finishLoadAsset();
+        });
+
+        titleMessage = new MyImage("game_assets/images/titleMessage.png");
+        beginLoadAsset();
+        titleMessage.onload(function () {
             finishLoadAsset();
         });
 
