@@ -98,7 +98,7 @@ function importScript(src) {
     }
 
     function showGameScene(playerIndex) {
-        changeScene("game");
+        changeScene("explain");
         if (gameScene == null) {
             console.log("Create GameScene");
             gameScene = new GameScene();
@@ -115,6 +115,8 @@ function importScript(src) {
             "resultBack" : resultBack,
             "closeButton" : closeButton,
             "tweetBox" : tweetBox,
+            "explain" : explain,
+            "gameStartButton" : gameStartButton,
         }
         gameScene.init(canvas, ctx, args);
 
@@ -169,6 +171,19 @@ function importScript(src) {
         titleMessage = new MyImage("game_assets/images/titleMessage.png");
         beginLoadAsset();
         titleMessage.onload (
+            function () { finishLoadAsset();}
+        );
+
+        //ゲームルールモーダル
+        explain = new MyImage("game_assets/images/explain.png");
+        beginLoadAsset();
+        explain.onload (
+            function () { finishLoadAsset();}
+        );
+
+        gameStartButton = new MyImage("game_assets/images/game_start.png");
+        beginLoadAsset();
+        gameStartButton.onload (
             function () { finishLoadAsset();}
         );
 
