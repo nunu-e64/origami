@@ -44,6 +44,7 @@ class GameScene{
 
         this.count = 0;
         this.buttonAlpha = 0;
+        this.explainAlpha = 0;
 
         this.touchHandler = this.touchstartEvent.bind(this);
         this.mousedownHandler = this.mousedownEvent.bind(this);
@@ -55,8 +56,11 @@ class GameScene{
         changeScene("explain");
         this.explain.x = getCenterPosition(WINDOW_WIDTH, this.explain.width);
         this.explain.y = getCenterPosition(WINDOW_HEIGHT, this.explain.height);
+
         this.gameStartButton.x = getCenterPosition(WINDOW_WIDTH, this.gameStartButton.width);
-        this.gameStartButton.y = getCenterPosition(WINDOW_HEIGHT, this.gameStartButton.height) + 200;;
+        this.gameStartButton.y = this.explain.y + this.explain.height -  this.gameStartButton.height - 5;
+
+        this.explain.addPos(0, -50);
     }
 
     show(playerIndex) {
@@ -68,22 +72,15 @@ class GameScene{
 
         if (scene == "explain") {
             this.showExplain();
-        } else {
-            this.gameStart();
         }
-
-        // ゲームスタート
-        this.startTime = getTime();
-        this.lastSpawnTime = this.startTime;
+        this.resetTime();
         this.renderFrame();
-
     }
 
-    gameStart() {
+    resetTime() {
         // ゲームスタート
         this.startTime = getTime();
         this.lastSpawnTime = this.startTime;
-        this.renderFrame();
     }
 
     setUpLayout () {
@@ -108,16 +105,25 @@ class GameScene{
     touchstartEvent(event) {
         event.preventDefault();
         console.log("prevent!");
-        this.clickEvent(event.touches[0].clientY);
+        this.clickEvent(event.touches[0].clientX, event.touches[0].clientY);
     }
 
     mousedownEvent(event) {
         event.preventDefault();
         console.log("prevent!");
-        this.clickEvent(event.clientY);
+        this.clickEvent(event.clientX, event.clientY);
     }
 
-    clickEvent(y) {
+    clickEvent(x, y) {
+
+        if (scene == "explain") {
+            if (this.gameStartButton.isContainedArea(x, y)){
+                changeScene("game");
+                this.resetTime();
+            }
+            return;
+        }
+
         if (scene != "game") {
             return;
         }
@@ -159,11 +165,6 @@ class GameScene{
             return;
         }
 
-        if (scene == "explain") {
-            this.draw();
-            return;
-        }
-
         this.count++;
 
         //ループを開始
@@ -174,6 +175,11 @@ class GameScene{
 
         //canvas をクリア
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        if (scene == "explain") {
+            this.draw();
+            return;
+        }
 
         // 障害物の移動
         for (var i = this.correctWords.length - 1; i >= 0; i--) {
@@ -266,8 +272,17 @@ class GameScene{
         }
 
         if (scene == "explain") {
+            if (this.explainAlpha < 1.0) {
+                this.explainAlpha += 0.05;
+                this.explain.addPos(0, 2.5);
+            }
+            ctx.globalAlpha = this.explainAlpha;
             this.explain.draw(ctx);
-            this.gameStartButton.draw(ctx);
+            ctx.globalAlpha = 1.0;
+
+            if (this.explainAlpha >= 1.0) {
+                this.gameStartButton.draw(ctx);
+            }
         }
     }
 
