@@ -70,16 +70,3 @@ function changeScene(nextScene) {
     console.log("Scene: " + scene + "->" + nextScene);
     scene = nextScene;
 }
-
-// ブラウザ対応音源拡張子取得
-var AUDIO_EXT = (function(){
-    return "mp3";
-    // var ext     = "";
-    // var audio   = new Audio();
-    //
-    // if      (audio.canPlayType("audio/ogg") == 'maybe') { ext="ogg"; }
-    // else if (audio.canPlayType("audio/mp3") == 'maybe') { ext="mp3"; }
-    // else if (audio.canPlayType("audio/wav") == 'maybe') { ext="wav"; }
-    //
-    // return ext;
-})();

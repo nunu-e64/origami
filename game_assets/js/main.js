@@ -57,9 +57,6 @@ function importScript(src) {
     var closeButton = null;
     var tweetBox = null;
 
-    // BGM
-    var bgm = null;
-
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
         loadAssets();
@@ -141,12 +138,6 @@ function importScript(src) {
         // テキストの描画位置指定
         ctx.textBaseline = "top";
         ctx.textAlign = "left";
-
-        // 音楽
-        bgm = new Audio("game_assets/music/bgm." + AUDIO_EXT);
-        bgm.loop = true;
-        bgm.volume = 1.0;
-        bgm.play();
 
         // 背景
         back = new MyImage("game_assets/images/background.png");
