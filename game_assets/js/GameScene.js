@@ -17,8 +17,6 @@ class GameScene{
         this.correctWordImage = args["correctWord"].image;
         this.wrongWordImage = args["wrongWord"].image;
         this.backTitleButton = args["backTitle"];
-        this.explain = args["explain"];
-        this.gameStartButton = args["gameStartButton"];
 
         this.lines = [];
         for (var i = 0; i < LINE_NUM - 1; i++) {
@@ -51,14 +49,6 @@ class GameScene{
         this.mousedownBackTitleButtonHandler = this.mousedownBackToTitleEvent.bind(this);
     }
 
-    showExplain() {
-        changeScene("explain");
-        this.explain.x = getCenterPosition(WINDOW_WIDTH, this.explain.width);
-        this.explain.y = getCenterPosition(WINDOW_HEIGHT, this.explain.height);
-        this.gameStartButton.x = getCenterPosition(WINDOW_WIDTH, this.gameStartButton.width);
-        this.gameStartButton.y = getCenterPosition(WINDOW_HEIGHT, this.gameStartButton.height) + 200;;
-    }
-
     show(playerIndex) {
         this.player = (playerIndex == 0 ? this.player0 : this.player1);
 
@@ -66,20 +56,6 @@ class GameScene{
         this.setUpLayout();
         this.setHandlers();
 
-        if (scene == "explain") {
-            this.showExplain();
-        } else {
-            this.gameStart();
-        }
-
-        // ゲームスタート
-        this.startTime = getTime();
-        this.lastSpawnTime = this.startTime;
-        this.renderFrame();
-
-    }
-
-    gameStart() {
         // ゲームスタート
         this.startTime = getTime();
         this.lastSpawnTime = this.startTime;
@@ -155,12 +131,7 @@ class GameScene{
     }
 
     renderFrame() {
-        if (scene != "game" && scene != "result" && scene != "explain") {
-            return;
-        }
-
-        if (scene == "explain") {
-            this.draw();
+        if (scene != "game" && scene != "result") {
             return;
         }
 
@@ -263,11 +234,6 @@ class GameScene{
             ctx.globalAlpha = this.buttonAlpha;
             this.backTitleButton.draw(ctx);
             ctx.globalAlpha = 1.0;
-        }
-
-        if (scene == "explain") {
-            this.explain.draw(ctx);
-            this.gameStartButton.draw(ctx);
         }
     }
 
