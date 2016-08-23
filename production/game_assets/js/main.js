@@ -94,6 +94,8 @@ var GameScene = function () {
             this.correctWordImage = args["correctWord"].image;
             this.wrongWordImage = args["wrongWord"].image;
             this.backTitleButton = args["backTitle"];
+            this.explain = args["explain"];
+            this.gameStartButton = args["gameStartButton"];
 
             this.lines = [];
             for (var i = 0; i < LINE_NUM - 1; i++) {
@@ -119,11 +121,24 @@ var GameScene = function () {
 
             this.count = 0;
             this.buttonAlpha = 0;
+            this.explainAlpha = 0;
 
             this.touchHandler = this.touchstartEvent.bind(this);
             this.mousedownHandler = this.mousedownEvent.bind(this);
             this.touchBackTitleButtonHandler = this.touchBackToTitleEvent.bind(this);
             this.mousedownBackTitleButtonHandler = this.mousedownBackToTitleEvent.bind(this);
+        }
+    }, {
+        key: "showExplain",
+        value: function showExplain() {
+            changeScene("explain");
+            this.explain.x = getCenterPosition(WINDOW_WIDTH, this.explain.width);
+            this.explain.y = getCenterPosition(WINDOW_HEIGHT, this.explain.height);
+
+            this.gameStartButton.x = getCenterPosition(WINDOW_WIDTH, this.gameStartButton.width);
+            this.gameStartButton.y = this.explain.y + this.explain.height - this.gameStartButton.height - 5;
+
+            this.explain.addPos(0, -50);
         }
     }, {
         key: "show",
@@ -134,10 +149,18 @@ var GameScene = function () {
             this.setUpLayout();
             this.setHandlers();
 
+            if (scene == "explain") {
+                this.showExplain();
+            }
+            this.resetTime();
+            this.renderFrame();
+        }
+    }, {
+        key: "resetTime",
+        value: function resetTime() {
             // ゲームスタート
             this.startTime = getTime();
             this.lastSpawnTime = this.startTime;
-            this.renderFrame();
         }
     }, {
         key: "setUpLayout",
@@ -165,18 +188,27 @@ var GameScene = function () {
         value: function touchstartEvent(event) {
             event.preventDefault();
             console.log("prevent!");
-            this.clickEvent(event.touches[0].clientY);
+            this.clickEvent(event.touches[0].clientX, event.touches[0].clientY);
         }
     }, {
         key: "mousedownEvent",
         value: function mousedownEvent(event) {
             event.preventDefault();
             console.log("prevent!");
-            this.clickEvent(event.clientY);
+            this.clickEvent(event.clientX, event.clientY);
         }
     }, {
         key: "clickEvent",
-        value: function clickEvent(y) {
+        value: function clickEvent(x, y) {
+
+            if (scene == "explain") {
+                if (this.gameStartButton.isContainedArea(x, y)) {
+                    changeScene("game");
+                    this.resetTime();
+                }
+                return;
+            }
+
             if (scene != "game") {
                 return;
             }
@@ -216,7 +248,7 @@ var GameScene = function () {
     }, {
         key: "renderFrame",
         value: function renderFrame() {
-            if (scene != "game" && scene != "result") {
+            if (scene != "game" && scene != "result" && scene != "explain") {
                 return;
             }
 
@@ -230,6 +262,11 @@ var GameScene = function () {
 
             //canvas をクリア
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            if (scene == "explain") {
+                this.draw();
+                return;
+            }
 
             // 障害物の移動
             for (var i = this.correctWords.length - 1; i >= 0; i--) {
@@ -321,6 +358,20 @@ var GameScene = function () {
                 ctx.globalAlpha = this.buttonAlpha;
                 this.backTitleButton.draw(ctx);
                 ctx.globalAlpha = 1.0;
+            }
+
+            if (scene == "explain") {
+                if (this.explainAlpha < 1.0) {
+                    this.explainAlpha += 0.05;
+                    this.explain.addPos(0, 2.5);
+                }
+                ctx.globalAlpha = this.explainAlpha;
+                this.explain.draw(ctx);
+                ctx.globalAlpha = 1.0;
+
+                if (this.explainAlpha >= 1.0) {
+                    this.gameStartButton.draw(ctx);
+                }
             }
         }
     }, {
@@ -1064,6 +1115,8 @@ function importScript(src) {
     var closeButton = null;
     var tweetBox = null;
     var titleMessage = null;
+    var explain = null;
+    var gameStartButton = null;
 
     //DOM のロードが完了したら実行
     document.addEventListener("DOMContentLoaded", function () {
@@ -1107,7 +1160,7 @@ function importScript(src) {
     }
 
     function showGameScene(playerIndex) {
-        changeScene("game");
+        changeScene("explain");
         if (gameScene == null) {
             console.log("Create GameScene");
             gameScene = new GameScene();
@@ -1123,7 +1176,9 @@ function importScript(src) {
             "tweetButton": tweetButton,
             "resultBack": resultBack,
             "closeButton": closeButton,
-            "tweetBox": tweetBox
+            "tweetBox": tweetBox,
+            "explain": explain,
+            "gameStartButton": gameStartButton
         };
         gameScene.init(canvas, ctx, args);
 
@@ -1180,6 +1235,19 @@ function importScript(src) {
         titleMessage = new MyImage("game_assets/images/titleMessage.png");
         beginLoadAsset();
         titleMessage.onload(function () {
+            finishLoadAsset();
+        });
+
+        //ゲームルールモーダル
+        explain = new MyImage("game_assets/images/explain.png");
+        beginLoadAsset();
+        explain.onload(function () {
+            finishLoadAsset();
+        });
+
+        gameStartButton = new MyImage("game_assets/images/game_start.png");
+        beginLoadAsset();
+        gameStartButton.onload(function () {
             finishLoadAsset();
         });
 
